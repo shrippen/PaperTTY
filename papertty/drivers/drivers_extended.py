@@ -13,8 +13,14 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""Drivers for the newer Waveshare panels, ported from the vendor library at
+"""EXPERIMENTAL drivers for newer Waveshare panels.
+
+Ported from the vendor library at
 https://github.com/waveshareteam/e-Paper (RaspberryPi_JetsonNano/python).
+
+These drivers were added with AI assistance ("vibe coded") and have **not**
+been tested on real hardware. Expect breakage. Prefer the older drivers in
+`drivers_partial.py` / `drivers_full.py` / … when a matching revision exists.
 
 The controllers used by these panels expect a full frame on every update, even
 when doing a partial (fast) refresh, whereas PaperTTY hands `draw()` arbitrary
@@ -32,14 +38,19 @@ from PIL import Image
 
 from papertty.drivers.drivers_base import GPIO, WaveshareEPD
 
+# All classes in this module are untested AI-assisted ports.
+EXPERIMENTAL = True
+
 
 class WaveshareBuffered(WaveshareEPD):
-    """Common base for the panels in this module.
+    """EXPERIMENTAL common base for the panels in this module.
 
     Subclasses implement `init`, `display_full` and (when the panel supports a
     fast refresh) `display_partial`; everything to do with keeping track of the
     frame is handled here.
     """
+
+    experimental = True
 
     # BUSY pin level that means "the panel is busy"
     busy_value = 1
@@ -62,6 +73,10 @@ class WaveshareBuffered(WaveshareEPD):
         self.frame_buffer = None
         # partial refresh is only valid once the panel has a reference frame
         self.base_image_written = False
+        print(
+            "!! EXPERIMENTAL DRIVER ({}) — vibe-coded / untested on hardware; "
+            "use at your own risk !!".format(type(self).__name__)
+        )
 
     # --- low level ---------------------------------------------------------
 
@@ -320,7 +335,7 @@ class WaveshareUC81xx(WaveshareBuffered):
 
 
 class EPD1in54v2(WaveshareSSD16xx):
-    """Waveshare 1.54" V2 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 1.54" V2 - monochrome"""
 
     WF_FULL = [
         0x80, 0x48, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -443,7 +458,7 @@ class EPD1in54v2(WaveshareSSD16xx):
 
 
 class EPD2in13v3(WaveshareSSD16xx):
-    """Waveshare 2.13" BW V3 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 2.13" BW V3 - monochrome"""
 
     lut_full_update = [
         0x80, 0x4A, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -560,7 +575,7 @@ class EPD2in13v3(WaveshareSSD16xx):
 
 
 class EPD2in13v4(WaveshareSSD16xx):
-    """Waveshare 2.13" BW V4 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 2.13" BW V4 - monochrome"""
 
     update_full = 0xF7
     update_partial = 0xFF
@@ -625,7 +640,7 @@ class EPD2in13v4(WaveshareSSD16xx):
 
 
 class EPD2in9v2(WaveshareSSD16xx):
-    """Waveshare 2.9" BW V2 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 2.9" BW V2 - monochrome"""
 
     WS_20_30 = [
         0x80, 0x66, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0, 0x0, 0x0,
@@ -736,7 +751,7 @@ class EPD2in9v2(WaveshareSSD16xx):
 
 
 class EPD2in66(WaveshareSSD16xx):
-    """Waveshare 2.66" - monochrome"""
+    """[EXPERIMENTAL] Waveshare 2.66" - monochrome"""
 
     WF_PARTIAL = [
         0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -827,7 +842,7 @@ class EPD2in66(WaveshareSSD16xx):
 
 
 class EPD2in66b(WaveshareSSD16xx):
-    """Waveshare 2.66" B - black / white / red (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 2.66" B - black / white / red (drawn as black and white)"""
 
     reset_high_ms = 200
     reset_low_ms = 5
@@ -874,7 +889,7 @@ class EPD2in66b(WaveshareSSD16xx):
 
 
 class EPD2in7v2(WaveshareSSD16xx):
-    """Waveshare 2.7" BW V2 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 2.7" BW V2 - monochrome"""
 
     update_full = 0xF7
     update_partial = 0xFF
@@ -920,7 +935,7 @@ class EPD2in7v2(WaveshareSSD16xx):
 
 
 class EPD2in7b_V2(WaveshareSSD16xx):
-    """Waveshare 2.7" B V2 - black / white / red (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 2.7" B V2 - black / white / red (drawn as black and white)"""
 
     def __init__(self):
         super().__init__(name='2.7" B V2', width=176, height=264)
@@ -961,7 +976,7 @@ class EPD2in7b_V2(WaveshareSSD16xx):
 
 
 class EPD4in2v2(WaveshareSSD16xx):
-    """Waveshare 4.2" BW V2 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 4.2" BW V2 - monochrome"""
 
     update_full = 0xF7
     update_partial = 0xFF
@@ -1020,7 +1035,7 @@ class EPD4in2v2(WaveshareSSD16xx):
 
 
 class EPD7in5_HD(WaveshareSSD16xx):
-    """Waveshare 7.5" HD - monochrome"""
+    """[EXPERIMENTAL] Waveshare 7.5" HD - monochrome"""
 
     busy_poll_ms = 0
 
@@ -1093,7 +1108,7 @@ class EPD7in5_HD(WaveshareSSD16xx):
 
 
 class EPD7in5b_HD(WaveshareSSD16xx):
-    """Waveshare 7.5" HD B - black / white / red (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 7.5" HD B - black / white / red (drawn as black and white)"""
 
     busy_poll_ms = 0
     reset_low_ms = 4
@@ -1171,7 +1186,7 @@ class EPD7in5b_HD(WaveshareSSD16xx):
 
 
 class EPD2in9d(WaveshareUC81xx):
-    """Waveshare 2.9" D - monochrome (flexible)"""
+    """[EXPERIMENTAL] Waveshare 2.9" D - monochrome (flexible)"""
 
     lut_vcom1 = [
         0x00, 0x19, 0x01, 0x00, 0x00, 0x01,
@@ -1322,7 +1337,7 @@ class EPD2in9d(WaveshareUC81xx):
 
 
 class EPD4in2b_V2(WaveshareUC81xx):
-    """Waveshare 4.2" B V2 - black / white / red (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 4.2" B V2 - black / white / red (drawn as black and white)"""
 
     # Waveshare probe the controller revision over a bit-banged SPI read, which
     # is not available here. Set this to True for boards that report revision
@@ -1400,7 +1415,7 @@ class EPD4in2b_V2(WaveshareUC81xx):
 
 
 class EPD5in83v2(WaveshareUC81xx):
-    """Waveshare 5.83" V2 - monochrome"""
+    """[EXPERIMENTAL] Waveshare 5.83" V2 - monochrome"""
 
     busy_poll_ms = 10
 
@@ -1467,7 +1482,7 @@ class EPD5in83v2(WaveshareUC81xx):
 
 
 class EPD5in83b_V2(WaveshareUC81xx):
-    """Waveshare 5.83" B V2 - black / white / red (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 5.83" B V2 - black / white / red (drawn as black and white)"""
 
     poll_status = True
     busy_poll_ms = 200
@@ -1523,7 +1538,7 @@ class EPD5in83b_V2(WaveshareUC81xx):
 
 
 class EPD4in01f(WaveshareUC81xx):
-    """Waveshare 4.01" F - 7 colors (drawn as black and white)"""
+    """[EXPERIMENTAL] Waveshare 4.01" F - 7 colors (drawn as black and white)"""
 
     # each source byte holds 8 pixels, each output byte holds two 4bpp pixels;
     # colour 0x0 is black and 0x1 is white

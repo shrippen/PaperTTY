@@ -8,6 +8,7 @@
   - Promote `--vcom` to the top-level CLI (needed for IT8951 `scrub`)
   - Add papertty-init–compatible installers (`install/cli.sh`, `install/gui.sh`, `install/simple.sh`) with systemd or crontab boot, panel/GPIO prompts, Ubuntu fonts, and IT8951 VCOM handling
   - Add extended Waveshare drivers (2.13 V3/V4, 1.54/2.7/2.9/4.2/5.83 V2, 2.66, 2.9d, 7.5 HD, 4.01f, …) and per-driver wiki pages under `wiki/`
+  - Mark extended drivers and the fork itself as experimental / vibe-coded; document personal-use intent
 - **2020-03-01**
   - Added partial refresh support for 4.2".
 - **2020-02-18**

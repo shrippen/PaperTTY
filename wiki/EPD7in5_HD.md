@@ -1,5 +1,7 @@
 # EPD7in5_HD
 
+> **EXPERIMENTAL** — vibe-coded / untested on hardware.
+
 **7.5inch HD e-Paper**
 
 Waveshare 7.5" HD - monochrome
@@ -50,4 +52,4 @@ Always enable SPI and use a power supply that can handle the panel's peak curren
 
 ## Status
 
-Untested hardware may need LUT or init tweaks. Please open an issue if your revision misbehaves with this driver name.
+**EXPERIMENTAL.** This driver was added with AI assistance (“vibe coded”) and has **not** been tested on real hardware. It may damage nothing but can easily mis-refresh or hang SPI. Prefer a non-experimental driver when one matches your panel sticker. Reports and fixes are welcome.

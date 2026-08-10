@@ -88,6 +88,7 @@ choose_panel() {
   echo ""
   echo "Which Waveshare panel / driver are you going to be using?"
   echo "HD panels (6\" / 7.8\" / 9.7\" / 10.3\", etc.) usually need the IT8951 driver."
+  echo "Names marked experimental in the wiki were vibe-coded and are untested on hardware."
   read -r -p "Press Enter to continue"
   echo ""
   echo "Supported panels/drivers:"
