@@ -52,7 +52,7 @@ Paths match papertty-init where useful:
 3. Clone this repo on the Pi and run:
 
 ```bash
-git clone <this-repo-url> PaperTTY
+git clone https://github.com/shrippen/PaperTTY.git PaperTTY
 cd PaperTTY
 bash install/cli.sh
 ```
