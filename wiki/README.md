@@ -1,17 +1,22 @@
 # Publishing this wiki to GitHub
 
-The markdown files in this directory are GitHub Wiki–compatible (`Home.md`, `_Sidebar.md`, one page per driver).
+The markdown files in this directory are the source of truth for the
+[GitHub Wiki](https://github.com/shrippen/PaperTTY/wiki).
 
-After the main repository has been pushed, publish with:
+They are also kept in-repo so the docs travel with the code.
+
+To re-sync after editing files here:
 
 ```bash
-# one-time: enable Wiki in GitHub repo settings, then:
 git clone https://github.com/shrippen/PaperTTY.wiki.git /tmp/PaperTTY.wiki
-cp -a wiki/. /tmp/PaperTTY.wiki/
+cp -a wiki/*.md wiki/_Sidebar.md /tmp/PaperTTY.wiki/
+# omit this README.md from the wiki repo
+rm -f /tmp/PaperTTY.wiki/README.md
 cd /tmp/PaperTTY.wiki
 git add -A
-git commit -m "Sync display driver wiki pages"
+git commit -m "Sync wiki from main repo"
 git push
 ```
 
-Or keep using these files as in-repo documentation linked from the README.
+Note: GitHub only creates the `.wiki.git` remote after the first wiki page exists
+(once per repository). After that, git push works normally.

@@ -37,7 +37,7 @@ List everything with:
 papertty --driver EPD2in13 list
 ```
 
-Per-panel notes: [`wiki/Home.md`](wiki/Home.md) (⚠️ marks experimental drivers).
+Per-panel notes: [GitHub Wiki](https://github.com/shrippen/PaperTTY/wiki) (also mirrored under [`wiki/`](wiki/) in the repo). ⚠️ marks experimental drivers.
 
 | Driver | Notes |
 |--------|--------|
