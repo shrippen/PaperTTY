@@ -15,21 +15,25 @@ Upstream development has slowed, and the old dependency stack no longer installs
 
 ## Supported displays
 
-Most Waveshare SPI panels from upstream remain available. List them with:
+Most Waveshare SPI panels from upstream remain available, plus newer V2/V3/V4 and HD revisions. List them with:
 
 ```bash
 papertty --driver EPD2in13 list
 ```
 
+Per-panel notes live in the [`wiki/`](wiki/) directory (GitHub Wiki–compatible pages): start at [`wiki/Home.md`](wiki/Home.md).
+
 Common choices:
 
 | Driver | Panels (examples) |
 |--------|-------------------|
-| `EPD2in13`, `EPD2in13v2`, … | Small mono HATs with partial refresh |
-| `EPD7in5`, `EPD7in5v2`, … | Larger mono / color variants |
+| `EPD2in13v4` | Current 2.13″ V4 / HAT+ (prefer for new 2.13″ kits) |
+| `EPD2in13`, `EPD2in13v2`, `EPD2in13v3` | Older 2.13″ revisions |
+| `EPD2in9` / `EPD2in9v2` / `EPD2in66` | Mid-size mono modules |
+| `EPD7in5v2`, `EPD7in5_HD` | 7.5″ (standard V2 vs HD — different drivers) |
 | `IT8951` | HD boards (6″, 7.8″, 9.7″, 10.3″, …) — size/LUT auto-detected |
 
-See [`papertty/drivers/README.md`](papertty/drivers/README.md) for the full driver notes. For IT8951, set **`--vcom`** from the value printed on the panel FPC (e.g. `-1.45V` → `--vcom 1450`).
+See [`papertty/drivers/README.md`](papertty/drivers/README.md) for the driver tree. For IT8951, set **`--vcom`** from the value printed on the panel FPC (e.g. `-1.45V` → `--vcom 1450`).
 
 Typical HAT wiring (BCM): RST 17, DC 25, CS 8, BUSY 24, SPI0. Enable SPI (`raspi-config`). HD IT8951 boards also need the onboard interface switch set to **SPI** (or use USB where supported).
 

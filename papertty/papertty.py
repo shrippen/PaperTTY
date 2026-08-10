@@ -17,6 +17,7 @@ import papertty.drivers.drivers_partial as drivers_partial
 import papertty.drivers.drivers_full as drivers_full
 import papertty.drivers.drivers_color as drivers_color
 import papertty.drivers.drivers_colordraw as drivers_colordraw
+import papertty.drivers.drivers_extended as drivers_extended
 import papertty.drivers.driver_it8951 as driver_it8951
 import papertty.drivers.drivers_4in2 as driver_4in2
 
@@ -1103,6 +1104,15 @@ def get_drivers():
                   drivers_colordraw.EPD1in54b, drivers_colordraw.EPD1in54c,
                   drivers_colordraw.EPD2in13b, drivers_colordraw.EPD2in7b,
                   drivers_colordraw.EPD2in9b,
+
+                  drivers_extended.EPD1in54v2, drivers_extended.EPD2in13v3,
+                  drivers_extended.EPD2in13v4, drivers_extended.EPD2in9v2,
+                  drivers_extended.EPD2in9d, drivers_extended.EPD2in66,
+                  drivers_extended.EPD2in66b, drivers_extended.EPD2in7v2,
+                  drivers_extended.EPD2in7b_V2, drivers_extended.EPD4in2v2,
+                  drivers_extended.EPD4in2b_V2, drivers_extended.EPD5in83v2,
+                  drivers_extended.EPD5in83b_V2, drivers_extended.EPD7in5_HD,
+                  drivers_extended.EPD7in5b_HD, drivers_extended.EPD4in01f,
 
                   driver_it8951.IT8951,
 

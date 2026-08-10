@@ -36,6 +36,23 @@ All of the SPI displays listed on the Waveshare Wiki at the time of writing are 
   - **EPD 7.5" B V2 (black/white/red)**
   - **EPD 7.5" C (black/white/yellow)** - should work with `EPD7in5b`
   - **Displays using the IT8951 controller (6", 7.8", 9.7", 10.3")**
+- **Newer revisions (`drivers_extended.py`)**
+  - **EPD 1.54" V2 (monochrome) - `EPD1in54v2`, with partial refresh**
+  - **EPD 2.13" V3 (monochrome) - `EPD2in13v3`, with partial refresh**
+  - **EPD 2.13" V4 (monochrome) - `EPD2in13v4`, with partial refresh**
+  - **EPD 2.66" (monochrome) - `EPD2in66`, with partial refresh**
+  - **EPD 2.66" B (black/white/red) - `EPD2in66b`**
+  - **EPD 2.7" V2 (monochrome) - `EPD2in7v2`, with partial refresh**
+  - **EPD 2.7" B V2 (black/white/red) - `EPD2in7b_V2`**
+  - **EPD 2.9" V2 (monochrome) - `EPD2in9v2`, with partial refresh**
+  - **EPD 2.9" D (monochrome, flexible) - `EPD2in9d`, with partial refresh**
+  - **EPD 4.01" F (7 color) - `EPD4in01f`**
+  - **EPD 4.2" V2 (monochrome) - `EPD4in2v2`, with partial refresh**
+  - **EPD 4.2" B V2 (black/white/red) - `EPD4in2b_V2`**
+  - **EPD 5.83" V2 (monochrome) - `EPD5in83v2`, with partial refresh**
+  - **EPD 5.83" B V2 (black/white/red) - `EPD5in83b_V2`**
+  - **EPD 7.5" HD (monochrome) - `EPD7in5_HD`**
+  - **EPD 7.5" HD B (black/white/red) - `EPD7in5b_HD`**
 - **Special drivers**
   - **Dummy - no-op driver**
   - **Bitmap - output frames as bitmap files (for debugging)**
@@ -145,6 +162,11 @@ The **B** and **C** variants differ by just their color (EPD 1.54" C is an excep
           - **`EPD2in13b`** - **EPD 2.13" B (black/white/red)**
           - **`EPD2in7b`** - **EPD 2.7" B (black/white/red)**
           - **`EPD2in9b`** - **EPD 2.9" B (black/white/red)**
+    - **`WaveshareBuffered`** - base class for the newer panels, which expect a full frame on every update: it keeps a full-screen image around so that PaperTTY can keep drawing sub-regions
+      - **`WaveshareSSD16xx`** - SSD1675 / SSD1680 / SSD1683 controllers (RAM `0x24`/`0x26`, update via `0x22`/`0x20`)
+        - **`EPD1in54v2`**, **`EPD2in13v3`**, **`EPD2in13v4`**, **`EPD2in9v2`**, **`EPD2in66`**, **`EPD2in66b`**, **`EPD2in7v2`**, **`EPD2in7b_V2`**, **`EPD4in2v2`**, **`EPD7in5_HD`**, **`EPD7in5b_HD`**
+      - **`WaveshareUC81xx`** - UC8151 / UC8176 / UC8179 controllers (RAM `0x10`/`0x13`, refresh via `0x12`)
+        - **`EPD2in9d`**, **`EPD4in2b_V2`**, **`EPD5in83v2`**, **`EPD5in83b_V2`**, **`EPD4in01f`**
 
   ​
 
