@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Full Lite installer — papertty-init cli.sh functionality, adapted for this
-# maintained fork on Raspberry Pi OS Lite (Trixie/Bookworm).
+# maintained PaperTTY fork on Raspberry Pi OS Lite (Bookworm/Trixie).
 #
 # Usage (from a clone of this repository):
 #   bash install/cli.sh
@@ -33,11 +33,10 @@ echo ""
 echo "You can run it from a GUI image if you want, but the Pi will then boot"
 echo "straight to the console. For a desktop setup, use: bash install/gui.sh"
 echo ""
-echo "This installs the PaperTTY tree from:"
+echo "This installs PaperTTY from:"
 echo "  ${REPO_ROOT}"
 echo ""
-echo "Tested on Raspberry Pi OS Lite based on Debian Trixie (also Bookworm-compatible)."
-echo "Assumes a fresh Lite image on a Raspberry Pi."
+echo "Intended for Raspberry Pi OS Lite (Bookworm or Trixie) on a Raspberry Pi."
 echo ""
 
 detect_pi5
@@ -64,7 +63,7 @@ echo "RPi.GPIO has been used with PaperTTY for longer and is well-tested."
 echo "It does not work on Raspberry Pi 5 or newer."
 echo ""
 echo "gpiozero is regularly updated and works on newer devices (with lgpio)."
-echo "This fork defaults to gpiozero + spidev on Trixie."
+echo "On current Raspberry Pi OS, gpiozero + spidev is the recommended default."
 echo ""
 USE_GPIOZERO=1
 if [ "${PI5}" -eq 1 ]; then
@@ -90,7 +89,7 @@ fi
 echo ""
 echo ""
 echo "#3 Panel driver"
-choose_panel "IT8951"
+choose_panel
 ask_vcom_if_needed
 
 # --- #4 Orientation / font size (papertty-init used --portrait --size 30) ---
@@ -98,10 +97,12 @@ echo ""
 echo ""
 echo "#4 Display options"
 echo "papertty-init defaulted to portrait mode with font size 30."
-echo "For the Waveshare 7.8\" IT8951, landscape is often preferred."
-PORTRAIT=0
+echo "Choose whatever fits your panel mounting."
+PORTRAIT=1
 if yes_or_no "Use portrait orientation?"; then
   PORTRAIT=1
+else
+  PORTRAIT=0
 fi
 
 FONT_SIZE=30
@@ -262,12 +263,15 @@ echo "e.g. To change the font, font size, screen orientation, VCOM, etc."
 echo "The startup script can be found at: ${BINDIR}/startpapertty.sh"
 echo ""
 if [ "${PANEL}" = "IT8951" ]; then
-  echo "Hardware checklist (IT8951 / 7.8\"):"
-  echo "  - DIP switch on the driver board set to SPI"
-  echo "  - Solid 5V supply (Zero 2 W + large panels are power-hungry)"
+  echo "IT8951 checklist:"
+  echo "  - Interface mode set to SPI (or use USB if that is how you connected)"
+  echo "  - Adequate 5V supply (larger panels draw more current)"
   echo ""
   echo "Quick test:"
   echo "  sudo ${VENV_DIR}/bin/papertty --driver ${PANEL} --vcom ${VCOM} scrub"
+else
+  echo "Quick test:"
+  echo "  sudo ${VENV_DIR}/bin/papertty --driver ${PANEL} scrub"
 fi
 echo "  ${BINDIR}/startpapertty.sh"
 if [ "${BOOT_MODE}" = "systemd" ]; then

@@ -33,10 +33,10 @@ echo ""
 echo "This script should ONLY be run on a Raspberry Pi with the full Raspberry Pi OS"
 echo "desktop image (not Lite). For Lite, use: bash install/cli.sh"
 echo ""
-echo "This installs the PaperTTY tree from:"
+echo "This installs PaperTTY from:"
 echo "  ${REPO_ROOT}"
 echo ""
-echo "Tested against Raspberry Pi OS based on Debian Trixie (Bookworm-compatible)."
+echo "Intended for Raspberry Pi OS with desktop (Bookworm or Trixie)."
 echo ""
 
 detect_pi5
@@ -109,7 +109,7 @@ fi
 echo ""
 echo ""
 echo "#3 Panel driver"
-choose_panel "IT8951"
+choose_panel
 ask_vcom_if_needed
 
 # --- #4 Display options ---

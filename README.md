@@ -1,55 +1,53 @@
 # PaperTTY
 
-Maintained fork of [joukos/PaperTTY](https://github.com/joukos/PaperTTY) for **Raspberry Pi OS Lite (Debian Trixie)** and Waveshare SPI e-ink panels.
+Maintained fork of [joukos/PaperTTY](https://github.com/joukos/PaperTTY): render a Linux virtual console (or VNC / framebuffer / image) on affordable SPI e-ink displays, typically driven from a Raspberry Pi.
 
-This tree is aimed at a **Raspberry Pi Zero 2 W** with the **[Waveshare 7.8inch e-Paper HAT](https://www.waveshare.com/wiki/7.8inch_e-Paper_HAT)** (IT8951, 1872×1404): mirror the Linux console onto the panel and autostart after console autologin.
-
-Installer UX is inspired by [mcarr823/papertty-init](https://github.com/mcarr823/papertty-init).
+Upstream development has slowed, and the old dependency stack no longer installs cleanly on current Raspberry Pi OS. This fork keeps the same drivers and CLI, with packaging and GPIO/SPI updates for modern Pi OS, plus installers based on [papertty-init](https://github.com/mcarr823/papertty-init).
 
 ## Why this fork
 
-Upstream PaperTTY still pins Pillow 7 / click 7 and prefers RPi.GPIO-era assumptions. On Trixie (Python 3.13) that stack does not install cleanly. This fork:
+- Python **3.11+** (including Raspberry Pi OS **Trixie** / Python 3.13)
+- Modern **Pillow** and **click 8** (replaces pinned Pillow 7 / click 7)
+- SPI via **spidev**; GPIO via **gpiozero** (lgpio on current Pi OS), with optional **RPi.GPIO** fallback
+- **vncdotool** is optional (`pip install 'papertty[vnc]'`)
+- Top-level **`--vcom`** for IT8951 panels (including `scrub`)
+- Installers for Lite, desktop, and venv-only setups
 
-- Targets Python **3.11+** (Trixie ships 3.13)
-- Uses modern **Pillow** and **click 8**
-- Drives SPI with **spidev** and GPIO with **gpiozero** (lgpio on Pi OS), with optional RPi.GPIO fallback
-- Makes **vncdotool** optional (`pip install 'papertty[vnc]'`)
-- Ships **papertty-init–compatible installers** (`install/cli.sh`, `install/gui.sh`, `install/simple.sh`) updated for Trixie, plus IT8951 VCOM handling and optional systemd boot
+## Supported displays
 
-## Hardware
+Most Waveshare SPI panels from upstream remain available. List them with:
 
-| Item | Notes |
-|------|--------|
-| Pi Zero 2 W | 64-bit Pi OS Lite recommended |
-| Waveshare 7.8″ e-Paper HAT | IT8951 controller board + panel |
-| Interface | **SPI** (set the HAT DIP switch to SPI) |
-| Power | Use a solid **5V** supply; the 7.8″ panel is hungry and brownouts look like SPI hangs |
+```bash
+papertty --driver EPD2in13 list
+```
 
-Pinout (BCM): MISO 9, MOSI 10, SCK 11, CS 8, RST 17, HRDY/BUSY 24, 5V, GND.
+Common choices:
 
-Read **VCOM** from the sticker on the panel FPC cable (e.g. `-1.45V`). PaperTTY wants the absolute millivolt form: `1450`.
+| Driver | Panels (examples) |
+|--------|-------------------|
+| `EPD2in13`, `EPD2in13v2`, … | Small mono HATs with partial refresh |
+| `EPD7in5`, `EPD7in5v2`, … | Larger mono / color variants |
+| `IT8951` | HD boards (6″, 7.8″, 9.7″, 10.3″, …) — size/LUT auto-detected |
 
-## Installers (papertty-init compatible)
+See [`papertty/drivers/README.md`](papertty/drivers/README.md) for the full driver notes. For IT8951, set **`--vcom`** from the value printed on the panel FPC (e.g. `-1.45V` → `--vcom 1450`).
 
-Installers live under [`install/`](install/) and keep the interactive choices from [papertty-init](https://github.com/mcarr823/papertty-init), adapted to this repo and Trixie.
+Typical HAT wiring (BCM): RST 17, DC 25, CS 8, BUSY 24, SPI0. Enable SPI (`raspi-config`). HD IT8951 boards also need the onboard interface switch set to **SPI** (or use USB where supported).
+
+## Installers
 
 | Script | When to use |
 |--------|-------------|
-| [`install/cli.sh`](install/cli.sh) | **Pi OS Lite** — SPI, console login options, Ubuntu Mono font, full panel list, gpiozero/RPi.GPIO choice, systemd **or** crontab `@reboot` |
-| [`install/gui.sh`](install/gui.sh) | **Pi OS desktop** — XFCE autologin, tty1 **or** tmux, power-management disable, same panel/GPIO prompts |
-| [`install/simple.sh`](install/simple.sh) | Venv only (Pi or PC) — no boot/SPI changes; optional vncdotool; also installs pyusb / pigpio like papertty-init |
+| [`install/cli.sh`](install/cli.sh) | **Raspberry Pi OS Lite** — SPI, optional console autologin, Ubuntu Mono, panel/GPIO prompts, systemd **or** crontab `@reboot` |
+| [`install/gui.sh`](install/gui.sh) | **Raspberry Pi OS desktop** — XFCE autologin, tty1 or tmux, same panel/GPIO prompts |
+| [`install/simple.sh`](install/simple.sh) | Venv only (Pi or PC) — no boot/SPI changes; optional VNC extras |
 
-Paths match papertty-init where useful:
+Paths (papertty-init compatible):
 
 - Startup script: `~/.local/bin/papertty-init/startpapertty.sh`
-- Fonts: `~/.local/share/fonts/papertty-init/` (Ubuntu Mono)
+- Fonts: `~/.local/share/fonts/papertty-init/`
 - Venv: `~/.local/share/papertty/venv`
 
-### Quick start (Pi OS Lite / Trixie)
-
-1. Flash **Raspberry Pi OS Lite (64-bit, Trixie)** with Imager; enable SSH and set a user.
-2. Attach the HAT, set DIP to **SPI**, power the Pi.
-3. Clone this repo on the Pi and run:
+### Lite (recommended for console-on-e-ink)
 
 ```bash
 git clone https://github.com/shrippen/PaperTTY.git PaperTTY
@@ -57,65 +55,51 @@ cd PaperTTY
 bash install/cli.sh
 ```
 
-`cli.sh` prompts for:
+You will be asked for GPIO backend, autologin, panel driver, display options, and boot method. IT8951 installs also prompt for VCOM.
 
-- GPIO library (gpiozero vs RPi.GPIO; Pi 5 forces gpiozero)
-- Automatic login
-- Panel/driver (full Waveshare list; default **IT8951**)
-- VCOM when using IT8951
-- Portrait/landscape and font size (papertty-init defaults were portrait + size 30)
-- Boot via **systemd** (recommended) or **crontab @reboot**
-
-4. Optional smoke test before reboot:
+After install, reboot (or run the generated `startpapertty.sh`). With systemd:
 
 ```bash
-sudo ~/.local/share/papertty/venv/bin/papertty --driver IT8951 --vcom 1450 scrub
-~/.local/bin/papertty-init/startpapertty.sh
-```
-
-5. Reboot. After login on tty1, the e-ink should follow the console.
-
-```bash
-sudo systemctl status papertty   # if you chose systemd
+sudo systemctl status papertty
 sudo systemctl restart papertty
 ```
 
-Edit options in `~/.local/bin/papertty-init/startpapertty.sh`.
-
-### Desktop (gui.sh)
+### Desktop
 
 ```bash
 bash install/gui.sh
 ```
 
-### Debug-only install (no boot changes)
+### Venv only
 
 ```bash
 bash install/simple.sh
-sudo ~/.local/share/papertty/venv/bin/papertty --driver IT8951 --vcom 1450 terminal --autofit
+sudo ~/.local/share/papertty/venv/bin/papertty --driver EPD2in13 terminal --autofit
 ```
 
 ## Manual usage
 
 ```bash
 # List drivers
-papertty --driver IT8951 list
+papertty --driver EPD2in13 list
 
-# Console mirror
+# Small Waveshare panel (example)
+sudo papertty --driver EPD2in13 terminal --autofit
+
+# IT8951 HD panel (VCOM from FPC label)
 sudo papertty --driver IT8951 --vcom 1450 terminal --autofit \
   --font /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
 
-# Full clear
+# Clear / scrub
+sudo papertty --driver EPD2in13 scrub
 sudo papertty --driver IT8951 --vcom 1450 scrub
 ```
 
-Smaller Waveshare SPI panels still work via drivers such as `EPD2in13` and `EPD7in5v2`.
-
-For VNC mode:
+VNC (optional extra):
 
 ```bash
 pip install 'papertty[vnc]'
-sudo papertty --driver IT8951 --vcom 1450 vnc --host localhost --display 0
+sudo papertty --driver EPD2in13 vnc --host localhost --display 0
 ```
 
 ## Development install
@@ -124,26 +108,30 @@ sudo papertty --driver IT8951 --vcom 1450 vnc --host localhost --display 0
 python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -e .
-# optional
-pip install -e '.[vnc,lgpio]'
+pip install -e '.[vnc,lgpio,usb]'   # optional extras
 ```
 
-## Design notes
+## How it works
 
 ```text
-tty1 (/dev/vcsa1) -> PaperTTY (Pillow) -> dirty regions
-                                      -> IT8951 driver
-                                      -> spidev + gpiozero/lgpio
-                                      -> 7.8" panel
+tty / VNC / fb / image  ->  PaperTTY (Pillow)  ->  dirty regions
+                                              ->  display driver
+                                              ->  SPI + GPIO
+                                              ->  e-ink panel
 ```
 
-- Partial updates and A2/1bpp paths remain available for IT8951 panels whose LUT is recognized (including 7.8″ `M841_TFA2812`).
-- Systemd uses `RuntimeDirectory=papertty` so lgpio can create its notification sockets.
+Partial updates are used when the selected driver supports them. IT8951 can use faster 1bpp / A2 paths when the panel LUT allows it.
+
+## Requirements
+
+- Raspberry Pi (or compatible) with SPI, for real hardware
+- Raspberry Pi OS **Bookworm** or **Trixie** recommended; older images may work with more effort
+- Solid power supply for larger panels (undervoltage often looks like SPI failures)
 
 ## Upstream / license
 
 - Application code: originally CC0 (Jouko Strömmer et al.)
 - Display drivers under `papertty/drivers/`: GPL-3.0 (Waveshare-derived)
-- This fork keeps those terms; see `papertty/drivers/LICENSE`
+- This fork keeps those terms; see [`papertty/drivers/LICENSE`](papertty/drivers/LICENSE)
 
-Feedback and PRs welcome — especially device-tested VCOM defaults and Trixie packaging fixes.
+Issues and PRs welcome — especially for untested panel revisions and packaging on current Pi OS.

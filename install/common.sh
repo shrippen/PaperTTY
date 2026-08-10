@@ -68,11 +68,10 @@ SUPPORTED_PANELS=(
 )
 
 choose_panel() {
-  local panel found i default="${1:-IT8951}"
+  local panel found i
   echo ""
   echo "Which Waveshare panel / driver are you going to be using?"
-  echo "If you are using an HD panel (6\" / 7.8\" / 9.7\" / 10.3\"), choose IT8951."
-  echo "Default for this fork: ${default}"
+  echo "HD panels (6\" / 7.8\" / 9.7\" / 10.3\", etc.) usually need the IT8951 driver."
   read -r -p "Press Enter to continue"
   echo ""
   echo "Supported panels/drivers:"
@@ -81,10 +80,7 @@ choose_panel() {
       echo "  ${i}"
     done
     echo ""
-    read -r -p "Enter one of the choices above [${default}]: " panel
-    if [ -z "${panel}" ]; then
-      panel="${default}"
-    fi
+    read -r -p "Enter one of the choices above: " panel
     found=0
     for i in "${SUPPORTED_PANELS[@]}"; do
       if [ "${panel}" = "${i}" ]; then

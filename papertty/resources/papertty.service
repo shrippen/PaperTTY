@@ -7,10 +7,10 @@ Wants=multi-user.target
 Type=simple
 # install/cli.sh rewrites paths and PAPERTTTY_* values for the installing user.
 Environment=PAPERTTTY_INSTALL_ROOT=/home/pi/.local/share/papertty
-Environment=PAPERTTTY_VCOM=
-Environment=PAPERTTTY_DRIVER=IT8951
+Environment=PAPERTTTY_DRIVER=EPD2in13
 Environment=PAPERTTTY_FONT=/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
 Environment=PAPERTTTY_EXTRA_ARGS=--autofit
+# Environment=PAPERTTTY_VCOM=1450
 ExecStart=/home/pi/.local/share/papertty/bin/startpapertty.sh
 KillSignal=SIGINT
 TimeoutStopSec=15

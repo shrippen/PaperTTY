@@ -1,7 +1,7 @@
 [project]
 name = "papertty"
 version = "0.2.0"
-description = "Render a Linux console (or VNC/framebuffer) on Waveshare SPI e-ink displays"
+description = "Maintained PaperTTY: Linux console / VNC / framebuffer on Waveshare SPI e-ink"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "CC0-1.0" }
