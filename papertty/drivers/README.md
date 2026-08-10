@@ -36,23 +36,18 @@ All of the SPI displays listed on the Waveshare Wiki at the time of writing are 
   - **EPD 7.5" B V2 (black/white/red)**
   - **EPD 7.5" C (black/white/yellow)** - should work with `EPD7in5b`
   - **Displays using the IT8951 controller (6", 7.8", 9.7", 10.3")**
-- **Newer revisions (`drivers_extended.py`)**
-  - **EPD 1.54" V2 (monochrome) - `EPD1in54v2`, with partial refresh**
-  - **EPD 2.13" V3 (monochrome) - `EPD2in13v3`, with partial refresh**
-  - **EPD 2.13" V4 (monochrome) - `EPD2in13v4`, with partial refresh**
-  - **EPD 2.66" (monochrome) - `EPD2in66`, with partial refresh**
-  - **EPD 2.66" B (black/white/red) - `EPD2in66b`**
-  - **EPD 2.7" V2 (monochrome) - `EPD2in7v2`, with partial refresh**
-  - **EPD 2.7" B V2 (black/white/red) - `EPD2in7b_V2`**
-  - **EPD 2.9" V2 (monochrome) - `EPD2in9v2`, with partial refresh**
-  - **EPD 2.9" D (monochrome, flexible) - `EPD2in9d`, with partial refresh**
-  - **EPD 4.01" F (7 color) - `EPD4in01f`**
-  - **EPD 4.2" V2 (monochrome) - `EPD4in2v2`, with partial refresh**
-  - **EPD 4.2" B V2 (black/white/red) - `EPD4in2b_V2`**
-  - **EPD 5.83" V2 (monochrome) - `EPD5in83v2`, with partial refresh**
-  - **EPD 5.83" B V2 (black/white/red) - `EPD5in83b_V2`**
-  - **EPD 7.5" HD (monochrome) - `EPD7in5_HD`**
-  - **EPD 7.5" HD B (black/white/red) - `EPD7in5b_HD`**
+- **Newer revisions (`drivers_extended.py`) — EXPERIMENTAL**
+  - Added in this fork with AI assistance; **not tested on hardware**.
+  - They print `EXPERIMENTAL DRIVER` when constructed.
+  - **EPD 1.54" V2** - `EPD1in54v2`
+  - **EPD 2.13" V3 / V4** - `EPD2in13v3`, `EPD2in13v4`
+  - **EPD 2.66" / B** - `EPD2in66`, `EPD2in66b`
+  - **EPD 2.7" V2 / B V2** - `EPD2in7v2`, `EPD2in7b_V2`
+  - **EPD 2.9" V2 / D** - `EPD2in9v2`, `EPD2in9d`
+  - **EPD 4.01" F** - `EPD4in01f`
+  - **EPD 4.2" V2 / B V2** - `EPD4in2v2`, `EPD4in2b_V2`
+  - **EPD 5.83" V2 / B V2** - `EPD5in83v2`, `EPD5in83b_V2`
+  - **EPD 7.5" HD / B HD** - `EPD7in5_HD`, `EPD7in5b_HD`
 - **Special drivers**
   - **Dummy - no-op driver**
   - **Bitmap - output frames as bitmap files (for debugging)**
