@@ -1,13 +1,39 @@
 #!/usr/bin/env bash
 # Full Lite installer — papertty-init cli.sh functionality, adapted for this
-# maintained PaperTTY fork on Raspberry Pi OS Lite (Bookworm/Trixie).
+# vibe-coded PaperTTY fork on Raspberry Pi OS Lite (Bookworm/Trixie).
 #
-# Usage (from a clone of this repository):
+# From a clone:
 #   bash install/cli.sh
+#
+# From a Pi (no clone), like papertty-init:
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/cli.sh)"
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# --- remote one-liner bootstrap (curl | bash / bash -c "$(curl …)") -----------
+_PAPERTTTY_SELF="${BASH_SOURCE[0]:-}"
+if [[ ! -n "${_PAPERTTTY_SELF}" || ! -f "${_PAPERTTTY_SELF}" || ! -f "$(dirname "${_PAPERTTTY_SELF}")/common.sh" ]]; then
+  REPO_URL="${PAPERTTTY_REPO_URL:-https://github.com/shrippen/PaperTTY.git}"
+  REF="${PAPERTTTY_REF:-main}"
+  DEST="${PAPERTTTY_SRC:-${HOME}/.local/share/papertty/src}"
+  echo "PaperTTY installer: fetching ${REPO_URL} (${REF}) → ${DEST}"
+  if ! command -v git >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git
+  fi
+  if [[ -d "${DEST}/.git" ]]; then
+    git -C "${DEST}" fetch --depth 1 origin "${REF}"
+    git -C "${DEST}" checkout -qf FETCH_HEAD 2>/dev/null || git -C "${DEST}" checkout -qf "${REF}"
+  else
+    rm -rf "${DEST}"
+    mkdir -p "$(dirname "${DEST}")"
+    git clone --depth 1 --branch "${REF}" "${REPO_URL}" "${DEST}"
+  fi
+  exec bash "${DEST}/install/cli.sh" "$@"
+fi
+# ------------------------------------------------------------------------------
+
+SCRIPT_DIR="$(cd "$(dirname "${_PAPERTTTY_SELF}")" && pwd)"
 # shellcheck source=common.sh
 source "${SCRIPT_DIR}/common.sh"
 

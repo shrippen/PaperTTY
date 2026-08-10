@@ -1,15 +1,42 @@
 #!/usr/bin/env bash
 # Minimal installer — papertty-init simple.sh functionality, adapted for this
-# maintained fork. Installs into a venv only (no SPI / boot / fonts changes).
+# vibe-coded fork. Installs into a venv only (no SPI / boot / fonts changes).
 #
-# Usage (from a clone of this repository):
+# From a clone:
 #   bash install/simple.sh
+#
+# From a Pi (no clone), like papertty-init:
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/simple.sh)"
 #
 # Works on Raspberry Pi OS (Lite or desktop) and on Debian/Ubuntu desktops.
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# --- remote one-liner bootstrap (curl | bash / bash -c "$(curl …)") -----------
+# When this file is not on disk next to common.sh, clone the repo and re-exec.
+_PAPERTTTY_SELF="${BASH_SOURCE[0]:-}"
+if [[ ! -n "${_PAPERTTTY_SELF}" || ! -f "${_PAPERTTTY_SELF}" || ! -f "$(dirname "${_PAPERTTTY_SELF}")/common.sh" ]]; then
+  REPO_URL="${PAPERTTTY_REPO_URL:-https://github.com/shrippen/PaperTTY.git}"
+  REF="${PAPERTTTY_REF:-main}"
+  DEST="${PAPERTTTY_SRC:-${HOME}/.local/share/papertty/src}"
+  echo "PaperTTY installer: fetching ${REPO_URL} (${REF}) → ${DEST}"
+  if ! command -v git >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git
+  fi
+  if [[ -d "${DEST}/.git" ]]; then
+    git -C "${DEST}" fetch --depth 1 origin "${REF}"
+    git -C "${DEST}" checkout -qf FETCH_HEAD 2>/dev/null || git -C "${DEST}" checkout -qf "${REF}"
+  else
+    rm -rf "${DEST}"
+    mkdir -p "$(dirname "${DEST}")"
+    git clone --depth 1 --branch "${REF}" "${REPO_URL}" "${DEST}"
+  fi
+  exec bash "${DEST}/install/simple.sh" "$@"
+fi
+# ------------------------------------------------------------------------------
+
+SCRIPT_DIR="$(cd "$(dirname "${_PAPERTTTY_SELF}")" && pwd)"
 # shellcheck source=common.sh
 source "${SCRIPT_DIR}/common.sh"
 

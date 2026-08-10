@@ -64,18 +64,31 @@ Paths (papertty-init compatible):
 - Startup script: `~/.local/bin/papertty-init/startpapertty.sh`
 - Fonts: `~/.local/share/fonts/papertty-init/`
 - Venv: `~/.local/share/papertty/venv`
+- Source clone (curl installers): `~/.local/share/papertty/src`
 
-### Lite
+### One-liners (no prior clone)
+
+Same idea as papertty-init’s `bash -c "$(curl …)"`. On the Pi, these fetch this repo and run the installer:
+
+```bash
+# Venv only (Lite or desktop, or even a PC)
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/simple.sh)"
+
+# Full Lite setup (SPI, autologin options, boot service)
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/cli.sh)"
+
+# Desktop / XFCE setup
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/gui.sh)"
+```
+
+Optional env vars: `PAPERTTTY_REPO_URL`, `PAPERTTTY_REF` (default `main`), `PAPERTTTY_SRC` (clone directory).
+
+### From a local clone
 
 ```bash
 git clone https://github.com/shrippen/PaperTTY.git PaperTTY
 cd PaperTTY
-bash install/cli.sh
-```
-
-### Desktop / venv-only
-
-```bash
+bash install/cli.sh      # Lite
 bash install/gui.sh      # desktop
 bash install/simple.sh   # venv only
 ```
