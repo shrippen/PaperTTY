@@ -1,18 +1,24 @@
 [Unit]
-Description=PaperTTY
-DefaultDependencies=no
+Description=PaperTTY e-ink console mirror
+After=multi-user.target
+Wants=multi-user.target
 
 [Service]
 Type=simple
+# install/cli.sh rewrites paths and PAPERTTTY_* values for the installing user.
+Environment=PAPERTTTY_INSTALL_ROOT=/home/pi/.local/share/papertty
+Environment=PAPERTTTY_VCOM=
+Environment=PAPERTTTY_DRIVER=IT8951
+Environment=PAPERTTTY_FONT=/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+Environment=PAPERTTTY_EXTRA_ARGS=--autofit
+ExecStart=/home/pi/.local/share/papertty/bin/startpapertty.sh
 KillSignal=SIGINT
-TimeoutStopSec=8
+TimeoutStopSec=15
 Restart=on-failure
-
-### Change the paths below to match yours
-WorkingDirectory=/home/pi/code/PaperTTY
-ExecStart=/home/pi/code/PaperTTY/start.sh
-###
+RestartSec=3
+# gpiozero/lgpio may create notification sockets under the working directory
+RuntimeDirectory=papertty
+WorkingDirectory=/run/papertty
 
 [Install]
-WantedBy=sysinit.target
-
+WantedBy=multi-user.target

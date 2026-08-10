@@ -41,13 +41,34 @@ import click
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
 # for tidy driver list
 from collections import OrderedDict
-# for VNC
-from vncdotool import api
+# for VNC (optional extra: papertty[vnc])
+try:
+    from vncdotool import api as vnc_api
+except ImportError:
+    vnc_api = None
 # for reading stdin data for use with Pillow
 from io import BytesIO
 
 # resource path
 RESOURCE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+
+
+def font_text_size(font, text):
+    """Return (width, height) for text using modern Pillow APIs."""
+    if hasattr(font, "getbbox"):
+        bbox = font.getbbox(text)
+        if bbox is None:
+            return 0, 0
+        return bbox[2] - bbox[0], bbox[3] - bbox[1]
+    # Pillow < 10 fallback
+    return font.getsize(text)
+
+
+def font_text_width(font, text):
+    """Return advance width for text."""
+    if hasattr(font, "getlength"):
+        return int(font.getlength(text))
+    return font_text_size(font, text)[0]
 
 class PaperTTY:
     """The main class - handles various settings and showing text on the display"""
@@ -228,7 +249,7 @@ class PaperTTY:
         """Load the PIL or TrueType font"""
         # get physical dimensions of font. Take the average width of
         # 1000 M's because oblique fonts a complicated.
-        self.font_width = font.getsize('M' * 1000)[0] // 1000
+        self.font_width = font_text_width(font, 'M' * 1000) // 1000
         if 'getmetrics' in dir(font):
             metrics_ascent, metrics_descent = font.getmetrics()
             self.spacing = int(self.spacing) if self.spacing != 'auto' else (metrics_descent - 2)
@@ -242,7 +263,7 @@ class PaperTTY:
             self.spacing = int(self.spacing) if self.spacing != 'auto' else 0
             # pil fonts don't seem to have metrics, but all
             # characters seem to have the same height
-            self.font_height = font.getsize('a')[1] + self.spacing
+            self.font_height = font_text_size(font, 'a')[1] + self.spacing
 
     def init_display(self):
         """Initialize the display - call the driver's init method"""
@@ -351,7 +372,11 @@ class PaperTTY:
 
 
     def showvnc(self, host, display, password=None, rotate=None, invert=False, sleep=1, full_interval=100):
-        with api.connect(':'.join([host, display]), password=password) as client:
+        if vnc_api is None:
+            raise click.UsageError(
+                "VNC support requires vncdotool. Install with: pip install 'papertty[vnc]'"
+            )
+        with vnc_api.connect(':'.join([host, display]), password=password) as client:
             previous_vnc_image = None
             diff_bbox = None
             # number of updates; when it's 0, do a full refresh
@@ -1145,8 +1170,9 @@ def display_image(driver, image, stretch=False, no_resize=False, fill_color="whi
 @click.option('--driver', default=None, help='Select display driver')
 @click.option('--nopartial', is_flag=True, default=False, help="Don't use partial updates even if display supports it")
 @click.option('--encoding', default='latin_1', help='Encoding to use for the buffer', show_default=True)
+@click.option('--vcom', default=None, help='IT8951 VCOM as positive value x 1000 (eg. 1460 = -1.46V)')
 @click.pass_context
-def cli(ctx, driver, nopartial, encoding):
+def cli(ctx, driver, nopartial, encoding, vcom):
     """Display stdin or TTY on a Waveshare e-Paper display"""
     if not driver:
         PaperTTY.error(
@@ -1156,7 +1182,14 @@ def cli(ctx, driver, nopartial, encoding):
         matched_drivers = [n for n in get_drivers() if n.lower() == driver.lower()]
         if not matched_drivers:
             PaperTTY.error('Invalid driver selection, choose from:\n{}'.format(get_driver_list()))
-        ctx.obj = Settings(driver=matched_drivers[0], partial=not nopartial, encoding=encoding)
+        kwargs = dict(driver=matched_drivers[0], partial=not nopartial, encoding=encoding)
+        if vcom is not None:
+            vcom = int(vcom)
+            if vcom <= 0:
+                PaperTTY.error(
+                    "VCOM should be a positive number (eg. For -1.46V, set --vcom 1460)")
+            kwargs['vcom'] = vcom
+        ctx.obj = Settings(**kwargs)
     pass
 
 
@@ -1197,7 +1230,7 @@ def stdin(settings, font, fontsize, width, portrait, nofold, spacing):
         if width:
             text = ptty.fold(text, width)
         else:
-            font_width = ptty.font.getsize('M')[0]
+            font_width = font_text_width(ptty.font, 'M')
             max_width = int((ptty.driver.width - 8) / font_width) if portrait else int(ptty.driver.height / font_width)
             text = ptty.fold(text, width=max_width)
     ptty.showtext(text, fill=ptty.driver.black, portrait=portrait)
@@ -1243,7 +1276,11 @@ def image(settings, image_location, stretch, no_resize, fill_color, mirror, flip
 @click.pass_obj
 def vnc(settings, host, display, password, rotate, invert, sleep, fullevery):
     """Display a VNC desktop"""
-    
+    if vnc_api is None:
+        raise click.UsageError(
+            "VNC support requires vncdotool. Install with: pip install 'papertty[vnc]'"
+        )
+
     #Disable 1bpp and a2 by default if not using terminal mode
     settings.args['enable_a2'] = False
     settings.args['enable_1bpp'] = False

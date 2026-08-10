@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# Shared helpers for PaperTTY install scripts (papertty-init–compatible UX).
+
+# yes -> return 0; no -> return 1
+yes_or_no() {
+  local yn
+  while true; do
+    read -r -p "$* [y/n]: " yn
+    case "${yn}" in
+      [Yy]*) return 0 ;;
+      [Nn]*) return 1 ;;
+    esac
+  done
+}
+
+die() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+require_not_root() {
+  if [ "${EUID}" -eq 0 ]; then
+    die "Do not run this script as root. Run it as a normal sudo-capable user (e.g. pi)."
+  fi
+}
+
+detect_pi5() {
+  # papertty-init used character 14 of the model string; that breaks on
+  # "Raspberry Pi Zero 2 W". Prefer a substring check.
+  PI5=0
+  if [ -f /proc/device-tree/model ]; then
+    MODEL="$(tr -d '\0' </proc/device-tree/model)"
+    echo "Detected: ${MODEL}"
+    case "${MODEL}" in
+      *"Raspberry Pi 5"*|*"Raspberry Pi Compute Module 5"*)
+        PI5=1
+        ;;
+    esac
+  else
+    MODEL=""
+    echo "Warning: not a Raspberry Pi device tree; raspi-config steps may fail."
+  fi
+}
+
+SUPPORTED_PANELS=(
+  EPD1in54
+  EPD1in54b
+  EPD1in54c
+  EPD2in7
+  EPD2in7b
+  EPD2in9
+  EPD2in9b
+  EPD2in13
+  EPD2in13b
+  EPD2in13d
+  EPD2in13v2
+  EPD3in7
+  EPD4in2
+  EPD4in2b
+  EPD5in65f
+  EPD5in83
+  EPD5in83b
+  EPD7in5
+  EPD7in5b_V2
+  EPD7in5v2
+  EPD7in5b
+  IT8951
+)
+
+choose_panel() {
+  local panel found i default="${1:-IT8951}"
+  echo ""
+  echo "Which Waveshare panel / driver are you going to be using?"
+  echo "If you are using an HD panel (6\" / 7.8\" / 9.7\" / 10.3\"), choose IT8951."
+  echo "Default for this fork: ${default}"
+  read -r -p "Press Enter to continue"
+  echo ""
+  echo "Supported panels/drivers:"
+  while true; do
+    for i in "${SUPPORTED_PANELS[@]}"; do
+      echo "  ${i}"
+    done
+    echo ""
+    read -r -p "Enter one of the choices above [${default}]: " panel
+    if [ -z "${panel}" ]; then
+      panel="${default}"
+    fi
+    found=0
+    for i in "${SUPPORTED_PANELS[@]}"; do
+      if [ "${panel}" = "${i}" ]; then
+        found=1
+        break
+      fi
+    done
+    if [ "${found}" -eq 1 ]; then
+      PANEL="${panel}"
+      return 0
+    fi
+    echo "No match found."
+  done
+}
+
+ask_vcom_if_needed() {
+  VCOM=""
+  if [ "${PANEL}" != "IT8951" ]; then
+    return 0
+  fi
+  echo ""
+  echo "IT8951 requires VCOM from the FPC label on the panel."
+  echo "Enter the absolute millivolt value (e.g. panel -1.45V -> 1450)."
+  while true; do
+    read -r -p "VCOM (positive integer): " VCOM
+    if [[ "${VCOM}" =~ ^[1-9][0-9]+$ ]]; then
+      return 0
+    fi
+    echo "Invalid VCOM. Example: 1450"
+  done
+}
+
+install_ubuntu_fonts() {
+  local fontdir="$1"
+  mkdir -p "${fontdir}"
+  echo "Downloading and installing Ubuntu fonts into ${fontdir}"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y wget unzip || true
+  local tmp
+  tmp="$(mktemp -d)"
+  (
+    cd "${tmp}"
+    wget -q "https://assets.ubuntu.com/v1/0cef8205-ubuntu-font-family-0.83.zip" -O ubuntu-fonts.zip
+    unzip -q ubuntu-fonts.zip
+    mv ubuntu-font-family-0.83/*.ttf "${fontdir}/"
+  )
+  rm -rf "${tmp}"
+}
+
+apt_common_deps() {
+  sudo apt-get update
+  # Trixie: libtiff6. Bookworm still has libtiff5 / -dev packages under different names.
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    python3-venv python3-pip python3-dev \
+    libopenjp2-7 libjpeg-dev libfreetype-dev \
+    git wget unzip fonts-dejavu-core || true
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libtiff6 || \
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y libtiff5-dev || true
+}
+
+create_venv_and_install_papertty() {
+  local venv_dir="$1"
+  local repo_root="$2"
+  local use_gpiozero="$3" # 1 = gpiozero, 0 = RPi.GPIO
+
+  mkdir -p "$(dirname "${venv_dir}")"
+  if [ -d "${venv_dir}" ]; then
+    echo "Existing venv found at ${venv_dir}; recreating."
+    rm -rf "${venv_dir}"
+  fi
+
+  # system-site-packages helps pick up apt python3-lgpio / python3-gpiozero
+  python3 -m venv --system-site-packages "${venv_dir}"
+  "${venv_dir}/bin/pip" install --upgrade pip setuptools wheel
+  "${venv_dir}/bin/pip" install -e "${repo_root}"
+
+  # Always useful for SPI + IT8951 USB path (papertty-init installs these)
+  "${venv_dir}/bin/pip" install "spidev>=3.6" "pyusb>=1.2.1" || true
+
+  if [ "${use_gpiozero}" -eq 1 ]; then
+    echo "Installing gpiozero (+ lgpio when available)"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-gpiozero python3-lgpio || true
+    "${venv_dir}/bin/pip" install "gpiozero>=2.0" || true
+    "${venv_dir}/bin/pip" install "lgpio>=0.2.2.0" || true
+  else
+    echo "Installing RPi.GPIO"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-rpi.gpio || true
+    "${venv_dir}/bin/pip" install "RPi.GPIO>=0.7.0" || true
+  fi
+}
+
+write_startpapertty_sh() {
+  local outfile="$1"
+  local venv_dir="$2"
+  local panel="$3"
+  local font="$4"
+  local extra_args="$5"
+  local vcom="${6:-}"
+
+  cat > "${outfile}" <<EOF
+#!/bin/bash
+# Generated by PaperTTY installer. Edit to taste (font, size, orientation, VCOM).
+set -eu
+PAPERTTTY_BIN="${venv_dir}/bin/papertty"
+DRIVER="${panel}"
+FONT="${font}"
+EXTRA_ARGS="${extra_args}"
+VCOM="${vcom}"
+
+if [ ! -x "\${PAPERTTTY_BIN}" ]; then
+  echo "PaperTTY binary not found at \${PAPERTTTY_BIN}" >&2
+  exit 1
+fi
+
+if [ -n "\${VCOM}" ]; then
+  # shellcheck disable=SC2086
+  exec sudo "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" --vcom "\${VCOM}" terminal --font "\${FONT}" \${EXTRA_ARGS}
+fi
+
+# shellcheck disable=SC2086
+exec sudo "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" terminal --font "\${FONT}" \${EXTRA_ARGS}
+EOF
+  chmod 0755 "${outfile}"
+}

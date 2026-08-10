@@ -1,5 +1,13 @@
 # Changelog
 
+- **2026-08-10 (0.2.0 fork)**
+  - Retarget packaging for Python 3.11+ / Raspberry Pi OS Trixie (Pillow 10+, click 8, setuptools)
+  - Prefer spidev for SPI and gpiozero/lgpio for GPIO; drop noisy gpiozero SPIDevice path
+  - Replace removed Pillow `ImageFont.getsize` usage
+  - Make vncdotool an optional extra (`papertty[vnc]`)
+  - Promote `--vcom` to the top-level CLI (needed for IT8951 `scrub`)
+  - Add Lite installer scripts (`install/cli.sh`, `install/simple.sh`) with systemd + 7.8″ IT8951 defaults
+  - Restore papertty-init installer parity: full panel list, GPIO choice, autologin prompt, Ubuntu fonts, pyusb, crontab option, and `install/gui.sh`
 - **2020-03-01**
   - Added partial refresh support for 4.2".
 - **2020-02-18**

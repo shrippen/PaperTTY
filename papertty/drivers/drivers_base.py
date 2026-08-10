@@ -19,73 +19,78 @@ from PIL import Image
 
 import time
 
-# if rpi libs are not found, don't care - hope that we don't end up
-# using them
+# SPI always goes through spidev (more reliable than gpiozero SPIDevice).
 try:
     import spidev
+except ImportError:
+    spidev = None
+
+# GPIO: prefer gpiozero (lgpio pin factory on modern Raspberry Pi OS),
+# fall back to RPi.GPIO when available (works on Zero 2 W / Pi 4, not Pi 5).
+_gpiozero_ok = False
+_rpi_gpio_ok = False
+OutputDevice = None
+InputDevice = None
+rpiGPIO = None
+
+try:
+    from gpiozero import OutputDevice, InputDevice
+    _gpiozero_ok = True
+except ImportError:
+    pass
+
+try:
     import RPi.GPIO as rpiGPIO
+    _rpi_gpio_ok = True
 except ImportError:
     pass
 except RuntimeError as e:
+    # RPi.GPIO imported but cannot talk to hardware (e.g. Pi 5 / wrong platform).
     print(str(e))
 
-# Optional dependency
-try:
-    from gpiozero import OutputDevice, InputDevice, Device, SPIDevice
-    print("gpiozero found - using that instead of RPi.GPIO")
-except ImportError:
-    print("gpiozero not found - defaulting to RPi.GPIO")
-    pass
+
+def gpio_backend_name():
+    if _gpiozero_ok:
+        return "gpiozero"
+    if _rpi_gpio_ok:
+        return "RPi.GPIO"
+    return None
+
 
 class SpiDev:
+    """Thin wrapper around spidev for Waveshare / IT8951 transfers."""
 
-    """This is a mock SpiDev class which abstracts the actual SPI device.
-    This is so we can use a single class to interface with multiple
-    different backends.
-    """
-
-    gpiozero = False
-    spi = False
-
-    def __init__(self):
-        try:
-            factory = Device._default_pin_factory()
-            self.spi = SPIDevice(pin_factory=factory)
-            self.gpiozero = True
-        except Exception as e:
-            print("Failed to init gpiozero spi device")
-            self.spi = spidev.SpiDev(0, 0)
+    def __init__(self, bus=0, device=0):
+        if spidev is None:
+            raise RuntimeError(
+                "spidev is required for SPI e-ink panels. "
+                "Install the spidev package and enable SPI (raspi-config)."
+            )
+        self.spi = spidev.SpiDev(bus, device)
 
     def writebytes(self, data):
-        if self.gpiozero:
-            self.spi._spi.write(data)
-        else:
-            self.spi.writebytes(data)
+        self.spi.writebytes(data)
 
     def readbytes(self, n):
-        if self.gpiozero:
-            return self.spi._spi.read(n)
-        else:
-            return self.spi.readbytes(n)
+        return self.spi.readbytes(n)
 
     def setSpeed(self, hz):
-        if not self.gpiozero:
-            self.spi.max_speed_hz = hz
+        self.spi.max_speed_hz = hz
 
     def setMode(self, mode):
-        if not self.gpiozero:
-            self.spi.mode = mode
+        self.spi.mode = mode
 
     def setNoCs(self, value):
-        if not self.gpiozero:
-            self.spi.no_cs = value
+        self.spi.no_cs = value
+
 
 class GPIO:
+    """GPIO helpers shared by Waveshare drivers.
 
-    """These constant values are used in place of the RPi.GPIO constants.
-    This is so this class can be used on platforms other than the Raspberry Pi.
-    The actual values from RPi.GPIO are then substituted below.
+    Uses gpiozero when available, otherwise RPi.GPIO. Constants mirror
+    RPi.GPIO names so driver code stays portable.
     """
+
     OUT = "OUT"
     IN = "IN"
     BCM = "BCM"
@@ -93,56 +98,70 @@ class GPIO:
     HIGH = 1
 
     pins = {}
+    _backend = None
+
+    @staticmethod
+    def _ensure_backend():
+        if GPIO._backend:
+            return GPIO._backend
+        if _gpiozero_ok:
+            GPIO._backend = "gpiozero"
+            return GPIO._backend
+        if _rpi_gpio_ok:
+            GPIO._backend = "RPi.GPIO"
+            return GPIO._backend
+        raise RuntimeError(
+            "No GPIO backend available. Install gpiozero (and python3-lgpio "
+            "on Raspberry Pi OS) or RPi.GPIO, and run with permission to "
+            "access GPIO."
+        )
 
     @staticmethod
     def setmode(value):
-        try:
+        backend = GPIO._ensure_backend()
+        if backend == "RPi.GPIO":
             if value == GPIO.BCM:
                 rpiGPIO.setmode(rpiGPIO.BCM)
             else:
                 rpiGPIO.setmode(value)
-        except Exception as e:
-            #Not using RPi.GPIO - ignore the exception
-            pass
 
     @staticmethod
     def setwarnings(value):
-        try:
+        backend = GPIO._ensure_backend()
+        if backend == "RPi.GPIO":
             rpiGPIO.setwarnings(value)
-        except Exception as e:
-            #Not using RPi.GPIO - ignore the exception
-            pass
 
     @staticmethod
     def setup(pin, ioType):
-
-        try:
+        backend = GPIO._ensure_backend()
+        if backend == "gpiozero":
             if ioType == GPIO.OUT:
                 GPIO.pins[str(pin)] = OutputDevice(pin)
             else:
                 GPIO.pins[str(pin)] = InputDevice(pin)
-        except Exception as e:
-            GPIO.pins[str(pin)] = False
-            if ioType == GPIO.OUT:
-                rpiGPIO.setup(pin, rpiGPIO.OUT)
-            else:
-                rpiGPIO.setup(pin, rpiGPIO.IN)
+            return
+
+        GPIO.pins[str(pin)] = False
+        if ioType == GPIO.OUT:
+            rpiGPIO.setup(pin, rpiGPIO.OUT)
+        else:
+            rpiGPIO.setup(pin, rpiGPIO.IN)
 
     @staticmethod
     def input(pinNo):
         pin = GPIO.pins[str(pinNo)]
-        if pin == False:
+        if pin is False:
             return rpiGPIO.input(pinNo)
-        else:
-            return pin.value
+        return pin.value
 
     @staticmethod
     def output(pinNo, value):
         pin = GPIO.pins[str(pinNo)]
-        if pin == False:
+        if pin is False:
             rpiGPIO.output(pinNo, value)
         else:
             pin.on() if value == 1 else pin.off()
+
 
 class DisplayDriver(ABC):
     """Abstract base class for a display driver - be it Waveshare e-Paper, PaPiRus, OLED..."""
@@ -193,6 +212,7 @@ class DisplayDriver(ABC):
         self.draw(0, 0, image)
         image = Image.new('1', (self.height, self.width), self.white)
         self.draw(0, 0, image)
+
 
 class SpecialDriver(DisplayDriver):
     """Drivers that don't control hardware"""
@@ -276,8 +296,6 @@ class WaveshareEPD(DisplayDriver):
     ROTATE_180 = 0x02
     ROTATE_270 = 0x03
 
-    # SPI device, bus = 0, device = 0
-
     # SPI methods
 
     @staticmethod
@@ -296,9 +314,11 @@ class WaveshareEPD(DisplayDriver):
         self.SPI.writebytes(data)
 
     def epd_init(self, includeDcPin=True):
+        backend = GPIO._ensure_backend()
+        print("GPIO backend: {} (SPI via spidev)".format(backend))
 
-        #SpiDev init must come first, otherwise CS_PIN read conflicts
-        #will sometimes occur during startup.
+        # SpiDev init must come first, otherwise CS_PIN read conflicts
+        # will sometimes occur during startup.
         self.SPI = SpiDev()
         self.SPI.setSpeed(2000000)
         self.SPI.setMode(0b00)

@@ -1,23 +1,53 @@
-[tool.poetry]
+[project]
 name = "papertty"
-version = "0.1.8"
-description = "Python module to render a TTY or VNC on e-ink"
-authors = ["Jouko Strömmer <jouko.strommer@iki.fi>"]
+version = "0.2.0"
+description = "Render a Linux console (or VNC/framebuffer) on Waveshare SPI e-ink displays"
 readme = "README.md"
-repository = "https://github.com/joukos/PaperTTY"
-homepage = "https://github.com/joukos/PaperTTY"
+requires-python = ">=3.11"
+license = { text = "CC0-1.0" }
+authors = [
+    { name = "Jouko Strömmer", email = "jouko.strommer@iki.fi" },
+]
+keywords = ["eink", "e-paper", "raspberry-pi", "waveshare", "it8951", "console"]
+dependencies = [
+    "click>=8.1",
+    "Pillow>=10.0",
+    "spidev>=3.6",
+    "gpiozero>=2.0",
+]
 
-[tool.poetry.dependencies]
-click = "^7.1.2"
-Pillow = "7.1.2"
-python = "^3.5"
-"RPi.GPIO" = "^0.7.0"
-spidev = "^3.4"
-vncdotool = "^1.0.0"
+[project.optional-dependencies]
+vnc = ["vncdotool>=1.2.0"]
+# Legacy GPIO fallback for older Pis when gpiozero/lgpio are unavailable.
+rpi-gpio = ["RPi.GPIO>=0.7.0"]
+# Prefer system python3-lgpio on Raspberry Pi OS; pip wheel as fallback.
+lgpio = ["lgpio>=0.2.2.0"]
+# IT8951 over USB (papertty-init always installed this).
+usb = ["pyusb>=1.2.1"]
+# Remote GPIO via pigpio (papertty-init simple.sh).
+pigpio = ["pigpio>=1.78"]
+all = [
+    "papertty[vnc,rpi-gpio,lgpio,usb,pigpio]",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 papertty = "papertty.papertty:cli"
 
+[project.urls]
+Homepage = "https://github.com/joukos/PaperTTY"
+Upstream = "https://github.com/joukos/PaperTTY"
+
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["papertty*"]
+
+[tool.setuptools.package-data]
+papertty = [
+    "resources/*",
+    "drivers/LICENSE",
+    "drivers/README.md",
+]
