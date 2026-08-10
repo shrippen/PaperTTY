@@ -34,7 +34,7 @@ all = [
 papertty = "papertty.papertty:cli"
 
 [project.urls]
-Homepage = "https://github.com/joukos/PaperTTY"
+Homepage = "https://github.com/shrippen/PaperTTY"
 Upstream = "https://github.com/joukos/PaperTTY"
 
 [build-system]
