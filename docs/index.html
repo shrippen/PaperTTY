@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaperTTY — Linux terminal on e-ink</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--accent2:#3fb950;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.container{max-width:960px;margin:0 auto;padding:0 1.5rem}
+
+/* Hero */
+.hero{min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4rem 1.5rem}
+.hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:800;letter-spacing:-0.03em;margin-bottom:0.5rem}
+.hero .tagline{font-size:1.25rem;color:var(--muted);max-width:600px;margin-bottom:2rem}
+.hero .badge{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.8rem;font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem}
+.hero .badge code{color:var(--accent2)}
+
+.install-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.75rem;max-width:720px;width:100%;position:relative;margin-bottom:1rem}
+.install-box code{font-family:var(--mono);font-size:0.9rem;color:var(--text);word-break:break-all}
+.install-box .label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem}
+.install-box+.install-box{margin-top:0.75rem}
+.install-links{margin-top:1rem;font-size:0.9rem;color:var(--muted)}
+.install-links a{margin:0 0.5rem}
+
+.cta-row{margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+.cta-row a{padding:0.6rem 1.4rem;border-radius:8px;font-weight:600;font-size:0.95rem;transition:opacity .15s}
+.cta-row .primary{background:var(--accent);color:#0d1117}
+.cta-row .secondary{border:1px solid var(--border);color:var(--text)}
+.cta-row a:hover{opacity:0.85;text-decoration:none}
+
+/* Sections */
+section{padding:5rem 0}
+section:nth-child(even){background:var(--surface)}
+section h2{font-size:1.8rem;font-weight:700;margin-bottom:0.5rem}
+section .subtitle{color:var(--muted);margin-bottom:2rem;font-size:1.05rem}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.5rem}
+.card h3{font-size:1.1rem;margin-bottom:0.4rem}
+.card p{color:var(--muted);font-size:0.92rem}
+.card .icon{font-size:1.6rem;margin-bottom:0.6rem}
+
+/* Driver table */
+.driver-table{width:100%;border-collapse:collapse;margin-top:1.5rem;font-size:0.9rem}
+.driver-table th,.driver-table td{text-align:left;padding:0.6rem 0.8rem;border-bottom:1px solid var(--border)}
+.driver-table th{color:var(--muted);font-weight:600;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em}
+.driver-table code{font-family:var(--mono);font-size:0.85rem}
+.exp{color:#d29922;font-size:0.75rem;vertical-align:super}
+
+/* Footer */
+footer{padding:3rem 0;text-align:center;color:var(--muted);font-size:0.85rem;border-top:1px solid var(--border)}
+footer a{color:var(--accent)}
+
+@media(max-width:600px){
+  .hero h1{font-size:2rem}
+  .install-box code{font-size:0.78rem}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="badge">Python 3.11+ &middot; Raspberry Pi OS <code>Trixie</code></div>
+  <h1>PaperTTY</h1>
+  <p class="tagline">Render a Linux terminal on affordable SPI e-ink displays. Vibe-coded fork, modernized for current Pi OS.</p>
+
+  <div class="install-box">
+    <div class="label">Quick install (venv only)</div>
+    <code>bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/simple.sh)"</code>
+  </div>
+  <div class="install-box">
+    <div class="label">Full Lite setup (SPI, autologin, boot service)</div>
+    <code>bash -c "$(curl -fsSL https://raw.githubusercontent.com/shrippen/PaperTTY/main/install/cli.sh)"</code>
+  </div>
+
+  <div class="install-links">Also: <a href="https://github.com/shrippen/PaperTTY/blob/main/install/gui.sh">Desktop / XFCE installer</a></div>
+
+  <div class="cta-row">
+    <a class="primary" href="https://github.com/shrippen/PaperTTY">GitHub</a>
+    <a class="secondary" href="https://github.com/shrippen/PaperTTY/wiki">Wiki</a>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2>Features</h2>
+    <p class="subtitle">Everything you need to run a terminal on e-ink.</p>
+    <div class="features">
+      <div class="card">
+        <div class="icon">🖥️</div>
+        <h3>Virtual Console</h3>
+        <p>Mirror a Linux tty directly to the e-ink panel with partial refresh where supported.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📡</div>
+        <h3>VNC Support</h3>
+        <p>Display a remote desktop session on e-ink. Great for headless setups with a graphical environment.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>Modern Stack</h3>
+        <p>Python 3.11+, Pillow 10+, click 8, spidev, gpiozero/lgpio. Installs cleanly on Bookworm and Trixie.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔧</div>
+        <h3>One-liner Installers</h3>
+        <p>papertty-init-style prompts: pick your panel, GPIO backend, and boot method. Works from curl.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🖼️</div>
+        <h3>40+ Display Drivers</h3>
+        <p>From 1.54″ to 10.3″ — including IT8951 HD boards. Experimental V2/V3/V4/HD ports included.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧹</div>
+        <h3>Panel Scrub</h3>
+        <p>Built-in <code>scrub</code> command to clear ghosting. Works with all drivers including IT8951.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Supported Displays</h2>
+    <p class="subtitle">A selection of supported panels. <a href="https://github.com/shrippen/PaperTTY/wiki">Full list in the Wiki →</a></p>
+    <table class="driver-table">
+      <thead>
+        <tr><th>Driver</th><th>Display</th><th>Resolution</th><th>Partial</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>EPD2in13</code></td><td>2.13″ HAT (legacy)</td><td>128×250</td><td>Yes</td></tr>
+        <tr><td><code>EPD2in13v3</code> <span class="exp">⚠️</span></td><td>2.13″ V3</td><td>128×250</td><td>Yes</td></tr>
+        <tr><td><code>EPD2in13v4</code> <span class="exp">⚠️</span></td><td>2.13″ V4 / HAT+</td><td>128×250</td><td>Yes</td></tr>
+        <tr><td><code>EPD7in5v2</code></td><td>7.5″ V2</td><td>800×480</td><td>No</td></tr>
+        <tr><td><code>EPD7in5_HD</code> <span class="exp">⚠️</span></td><td>7.5″ HD</td><td>880×528</td><td>No</td></tr>
+        <tr><td><code>IT8951</code></td><td>6″ / 7.8″ / 9.7″ / 10.3″ HD</td><td>Varies</td><td>Yes</td></tr>
+        <tr><td><code>EPD4in01f</code> <span class="exp">⚠️</span></td><td>4.01″ 7-color ACeP</td><td>640×400</td><td>No</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)"><span class="exp">⚠️</span> = experimental, AI-assisted port, not hardware-tested</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Usage</h2>
+    <p class="subtitle">After install, the CLI is ready.</p>
+    <div class="install-box" style="max-width:100%">
+      <code style="display:block;white-space:pre;overflow-x:auto;line-height:1.8">sudo papertty --driver EPD2in13 terminal --autofit
+
+sudo papertty --driver IT8951 --vcom 1450 terminal --autofit
+
+sudo papertty --driver EPD2in13 scrub</code>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>A personal, vibe-coded fork of <a href="https://github.com/joukos/PaperTTY">joukos/PaperTTY</a>. Not a polished product — shared in the hope it helps.</p>
+    <p style="margin-top:0.5rem"><a href="https://github.com/shrippen/PaperTTY">Source</a> · <a href="https://github.com/shrippen/PaperTTY/wiki">Wiki</a> · <a href="https://github.com/shrippen/PaperTTY/issues">Issues</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
