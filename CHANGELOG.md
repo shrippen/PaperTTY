@@ -1,6 +1,8 @@
 # Changelog
 
 - **2026-09-10 (fork)**
+  - IT8951 performance: real SPI speed via `--mhz` (12 MHz verified stable, 16 MHz not), numpy fast path for 1bpp packing (full frame pack 1.6 s -> 0.02 s), tighter BUSY/LUT poll sleeps; measured on 1872x1404: full A2 refresh 3.4 s -> 0.6 s, partial line update 1.5 s -> 0.03 s
+  - Add timeouts to IT8951 BUSY/LUT waits so a wedged controller crash-restarts the service
   - Add `--no-rotate` as primary name for the `--portrait` flag (kept as alias); the flag renders text along the native panel axes, not 'portrait output'
   - Document IT8951 orientation semantics: `--portrait` renders native (landscape) axes; note in installer prompt and wiki
   - Keep papertty stdout unbuffered under sudo in generated start scripts so init logs reach journald immediately
