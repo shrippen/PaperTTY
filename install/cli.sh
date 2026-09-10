@@ -124,6 +124,10 @@ echo ""
 echo "#4 Display options"
 echo "papertty-init defaulted to portrait mode with font size 30."
 echo "Choose whatever fits your panel mounting."
+if [ "${PANEL}" = "IT8951" ]; then
+  echo "IT8951: --portrait means 'no rotation' and reads as landscape on"
+  echo "these panels; answering no renders the text 90 degrees rotated."
+fi
 PORTRAIT=1
 if yes_or_no "Use portrait orientation?"; then
   PORTRAIT=1

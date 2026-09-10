@@ -213,11 +213,11 @@ fi
 
 if [ -n "\${VCOM}" ]; then
   # shellcheck disable=SC2086
-  exec sudo "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" --vcom "\${VCOM}" terminal --font "\${FONT}" \${EXTRA_ARGS}
+  exec sudo env PYTHONUNBUFFERED=1 "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" --vcom "\${VCOM}" terminal --font "\${FONT}" \${EXTRA_ARGS}
 fi
 
 # shellcheck disable=SC2086
-exec sudo "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" terminal --font "\${FONT}" \${EXTRA_ARGS}
+exec sudo env PYTHONUNBUFFERED=1 "\${PAPERTTTY_BIN}" --driver "\${DRIVER}" terminal --font "\${FONT}" \${EXTRA_ARGS}
 EOF
   chmod 0755 "${outfile}"
 }
