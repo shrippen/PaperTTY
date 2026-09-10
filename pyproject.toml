@@ -1,6 +1,6 @@
 [project]
 name = "papertty"
-version = "0.2.0"
+version = "1.0.0"
 description = "Personal vibe-coded PaperTTY fork for modern Raspberry Pi OS and Waveshare SPI e-ink"
 readme = "README.md"
 requires-python = ">=3.11"
