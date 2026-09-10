@@ -1225,7 +1225,8 @@ def scrub(settings, size):
               show_default=True)
 @click.option('--size', 'fontsize', default=8, help='Font size', show_default=True)
 @click.option('--width', default=None, help='Fit to width [default: display width / font width]')
-@click.option('--portrait', default=False, is_flag=True, help='Use portrait orientation', show_default=True)
+@click.option('--no-rotate', '--portrait', 'portrait', default=False, is_flag=True,
+              help='Render text along the native panel axes without rotating it 90 degrees (upstream: --portrait). On landscape-native panels like IT8951 this reads as landscape')
 @click.option('--nofold', default=False, is_flag=True, help="Don't fold the input", show_default=True)
 @click.option('--spacing', default='0', help='Line spacing for the text, "auto" to automatically determine a good value', show_default=True)
 @click.pass_obj
@@ -1322,7 +1323,8 @@ def fb(settings, fb_num, rotate, invert, sleep, fullevery):
 @click.option('--sleep', default=0.1, help='Minimum sleep between refreshes', show_default=True)
 @click.option('--rows', 'ttyrows', default=None, help='Set TTY rows (--cols required too)')
 @click.option('--cols', 'ttycols', default=None, help='Set TTY columns (--rows required too)')
-@click.option('--portrait', default=False, is_flag=True, help='Use portrait orientation', show_default=False)
+@click.option('--no-rotate', '--portrait', 'portrait', default=False, is_flag=True,
+              help='Render text along the native panel axes without rotating it 90 degrees (upstream: --portrait). On landscape-native panels like IT8951 this reads as landscape')
 @click.option('--flipx', default=False, is_flag=True, help='Flip X axis (EXPERIMENTAL/BROKEN)', show_default=False)
 @click.option('--flipy', default=False, is_flag=True, help='Flip Y axis (EXPERIMENTAL/BROKEN)', show_default=False)
 @click.option('--spacing', default='0', help='Line spacing for the text, "auto" to automatically determine a good value', show_default=True)

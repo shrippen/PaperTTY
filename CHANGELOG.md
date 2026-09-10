@@ -1,6 +1,7 @@
 # Changelog
 
 - **2026-09-10 (fork)**
+  - Add `--no-rotate` as primary name for the `--portrait` flag (kept as alias); the flag renders text along the native panel axes, not 'portrait output'
   - Document IT8951 orientation semantics: `--portrait` renders native (landscape) axes; note in installer prompt and wiki
   - Keep papertty stdout unbuffered under sudo in generated start scripts so init logs reach journald immediately
 - **2026-09-10 (fork)**
