@@ -1,5 +1,7 @@
 # Changelog
 
+- **2026-09-10 (fork)**
+  - Explain `GPIO busy` on SPI chip-select pins: kernel CS claim vs manual CS toggling; point at `dtoverlay=spi0-0cs` (error message, installers, docs)
 - **2026-08-10 (0.2.0 fork)**
   - Retarget packaging for Python 3.11+ / current Raspberry Pi OS (Pillow 10+, click 8, setuptools)
   - Prefer spidev for SPI and gpiozero/lgpio for GPIO; drop noisy gpiozero SPIDevice path

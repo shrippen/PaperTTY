@@ -49,7 +49,7 @@ Per-panel notes: [GitHub Wiki](https://github.com/shrippen/PaperTTY/wiki) (also 
 
 For IT8951, set **`--vcom`** from the FPC sticker (e.g. `-1.45V` → `--vcom 1450`).
 
-Typical HAT wiring (BCM): RST 17, DC 25, CS 8, BUSY 24, SPI0. Enable SPI (`raspi-config`).
+Typical HAT wiring (BCM): RST 17, DC 25, CS 8, BUSY 24, SPI0. Enable SPI (`raspi-config`). For IT8951, also add `dtoverlay=spi0-0cs` to `/boot/firmware/config.txt` so GPIO 8 (CS) is free for manual control.
 
 ## Installers
 

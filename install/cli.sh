@@ -292,6 +292,7 @@ if [ "${PANEL}" = "IT8951" ]; then
   echo "IT8951 checklist:"
   echo "  - Interface mode set to SPI (or use USB if that is how you connected)"
   echo "  - Adequate 5V supply (larger panels draw more current)"
+  echo "  - 'dtoverlay=spi0-0cs' in /boot/firmware/config.txt (frees the CS pin)"
   echo ""
   echo "Quick test:"
   echo "  sudo ${VENV_DIR}/bin/papertty --driver ${PANEL} --vcom ${VCOM} scrub"

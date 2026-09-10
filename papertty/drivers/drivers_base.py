@@ -135,10 +135,22 @@ class GPIO:
     def setup(pin, ioType):
         backend = GPIO._ensure_backend()
         if backend == "gpiozero":
-            if ioType == GPIO.OUT:
-                GPIO.pins[str(pin)] = OutputDevice(pin)
-            else:
-                GPIO.pins[str(pin)] = InputDevice(pin)
+            try:
+                if ioType == GPIO.OUT:
+                    GPIO.pins[str(pin)] = OutputDevice(pin)
+                else:
+                    GPIO.pins[str(pin)] = InputDevice(pin)
+            except Exception as e:
+                # lgpio refuses pins claimed by the kernel, e.g. native SPI
+                # chip-selects. RPi.GPIO (gpiomem) ignored those claims.
+                if "busy" in str(e).lower():
+                    raise RuntimeError(
+                        "GPIO {} is busy, likely claimed by the kernel as an "
+                        "SPI chip-select. The driver toggles CS manually, so "
+                        "add 'dtoverlay=spi0-0cs' to /boot/firmware/config.txt "
+                        "and reboot.".format(pin)
+                    ) from e
+                raise
             return
 
         GPIO.pins[str(pin)] = False
