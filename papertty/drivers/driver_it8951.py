@@ -76,6 +76,11 @@ class IT8951(WaveshareEPD):
     Back_Gray_Val = 0xF0
     Front_Gray_Val = 0x00
 
+    # Abort instead of hanging forever when the controller stops
+    # responding (systemd restarts the service on failure).
+    BUSY_TIMEOUT = 10
+    DISPLAY_TIMEOUT = 30
+
     def __init__(self):
         super().__init__("IT8951", None, None)
         self.supports_partial = True
@@ -152,7 +157,10 @@ class IT8951(WaveshareEPD):
 
         When the busy pin is high the controller is busy and may drop any
         commands that are sent to it."""
+        deadline = time.time() + self.BUSY_TIMEOUT
         while GPIO.input(self.BUSY_PIN) == 0:
+            if time.time() > deadline:
+                raise RuntimeError("IT8951 BUSY stuck low for %ds - check wiring/power" % self.BUSY_TIMEOUT)
             self.delay_ms(1)
 
     def wait_for_display_ready(self):
@@ -161,7 +169,10 @@ class IT8951(WaveshareEPD):
         It is possible for the controller to be ready for more commands but the
         display to still be refreshing. This will wait for the display to be
         stable."""
+        deadline = time.time() + self.DISPLAY_TIMEOUT
         while self.read_register(self.REG_LUTAFSR) != 0:
+            if time.time() > deadline:
+                raise RuntimeError("IT8951 display update did not finish within %ds" % self.DISPLAY_TIMEOUT)
             self.delay_ms(20)
 
     def get_vcom(self):
