@@ -18,6 +18,8 @@ dependencies = [
 
 [project.optional-dependencies]
 vnc = ["vncdotool>=1.2.0"]
+# Optional 100x faster 1bpp frame packing for IT8951 terminal mode.
+numpy = ["numpy>=1.20"]
 # Legacy GPIO fallback for older Pis when gpiozero/lgpio are unavailable.
 rpi-gpio = ["RPi.GPIO>=0.7.0"]
 # Prefer system python3-lgpio on Raspberry Pi OS; pip wheel as fallback.

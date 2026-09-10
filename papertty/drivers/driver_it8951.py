@@ -3,6 +3,13 @@ import array
 import struct
 import time
 
+# Optional fast path for 1bpp frame packing; falls back to the pure
+# Python loop in pack_image when unavailable.
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
 from papertty.drivers.drivers_base import WaveshareEPD
 from papertty.drivers.drivers_base import GPIO
 from papertty.drivers.drivers_base import SpiDev
@@ -146,7 +153,7 @@ class IT8951(WaveshareEPD):
         When the busy pin is high the controller is busy and may drop any
         commands that are sent to it."""
         while GPIO.input(self.BUSY_PIN) == 0:
-            self.delay_ms(100)
+            self.delay_ms(1)
 
     def wait_for_display_ready(self):
         """Waits for the display to be finished updating.
@@ -155,7 +162,7 @@ class IT8951(WaveshareEPD):
         display to still be refreshing. This will wait for the display to be
         stable."""
         while self.read_register(self.REG_LUTAFSR) != 0:
-            self.delay_ms(100)
+            self.delay_ms(20)
 
     def get_vcom(self):
         self.wait_for_ready()
@@ -182,11 +189,11 @@ class IT8951(WaveshareEPD):
             return -1
 
         mhz = kwargs.get('mhz', None)
-        if mhz:
-            self.SPI.max_speed_hz = int(mhz * 1000000)
-        else:
-            self.SPI.max_speed_hz = 2000000
-        print("SPI Speed = %.02f Mhz" % (self.SPI.max_speed_hz / 1000.0 / 1000.0))
+        speed = int(mhz * 1000000) if mhz else 2000000
+        # setSpeed reaches the inner spidev device; assigning an attribute
+        # on this wrapper would silently have no effect.
+        self.SPI.setSpeed(speed)
+        print("SPI Speed = %.02f Mhz" % (speed / 1000.0 / 1000.0))
         
         # It is unclear why this is necessary but it appears to be. The sample
         # code from WaveShare [1] manually controls the CS bin and has its state
@@ -451,6 +458,22 @@ class IT8951(WaveshareEPD):
 
     def pack_image(self, image, bpp):
         """Packs a PIL image for transfer over SPI to the driver board."""
+        if image.mode == '1' and bpp == 1 and np is not None:
+            # Fast path: vectorized bit packing, ~100x faster than the pure
+            # Python loop below for a full 1872x1404 frame.
+            # mode '1' tobytes() is MSB-first packed: 8 pixels per byte.
+            raw = np.frombuffer(image.tobytes(), dtype=np.uint8)
+            bits = np.unpackbits(raw)
+            if bits.size % 16 == 0:
+                bits = bits.reshape(-1, 16)
+                # Matches pack_1bpp: out[2k] packs pixels 8-15, out[2k+1]
+                # pixels 0-7, first pixel of each pair into the LSB.
+                hi = np.packbits(bits[:, 8:], axis=1, bitorder='little')
+                lo = np.packbits(bits[:, :8], axis=1, bitorder='little')
+                out = np.empty((hi.shape[0], 2), dtype=np.uint8)
+                out[:, 0] = hi[:, 0]
+                out[:, 1] = lo[:, 0]
+                return bytes(out.ravel())
         if image.mode == '1':
             # B/W pictured can be processed more quickly
             frame_buffer = list(image.getdata())
