@@ -2,7 +2,7 @@
 
 Visual design decisions for this project follow the shared **shrippen Design Default**:
 
-<https://github.com/shrippen/DesignDefault>
+<https://github.com/shrippen/shrippen.github.io>
 
 Key points applied here:
 
