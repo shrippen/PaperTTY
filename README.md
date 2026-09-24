@@ -142,6 +142,7 @@ tty / VNC / fb / image  ->  PaperTTY (Pillow)  ->  dirty regions
 
 - Application code: originally CC0 (Jouko Strömmer et al.)
 - Display drivers under `papertty/drivers/`: GPL-3.0 (Waveshare-derived)
+- Overview: [`LICENSE`](LICENSE) (the package as a whole is effectively GPL-3.0 because of the drivers)
 - See [`papertty/drivers/LICENSE`](papertty/drivers/LICENSE)
 
 ## Disclaimer

@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Personal vibe-coded PaperTTY fork for modern Raspberry Pi OS and Waveshare SPI e-ink"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "CC0-1.0" }
+license = { text = "CC0-1.0 AND GPL-3.0-or-later" }
 authors = [
     { name = "Jouko Strömmer", email = "jouko.strommer@iki.fi" },
 ]

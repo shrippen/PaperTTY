@@ -1,0 +1,21 @@
+PaperTTY (fork) - licensing overview
+
+This project is a fork of joukos/PaperTTY (https://github.com/joukos/PaperTTY)
+and consists of two parts under different licenses:
+
+1. Application code (everything outside papertty/drivers/)
+   Originally released into the public domain by Jouko Strömmer et al. under
+   CC0 1.0 Universal (https://creativecommons.org/publicdomain/zero/1.0/).
+   Modifications by shrippen (2026) are released under the same terms.
+
+2. Display drivers (papertty/drivers/)
+   Reimplementations/refactorings of the Waveshare reference drivers, plus
+   drivers derived from Waveshare demo code. Licensed under the
+   GNU General Public License v3.0 or later. The full text is in
+   papertty/drivers/LICENSE.
+
+Because the drivers are GPL-3.0 and are part of the distributed package, the
+package as a whole is distributed under the terms of the GPL-3.0 where the two
+parts are combined. The CC0 parts may still be reused separately under CC0.
+
+SPDX-License-Identifier: CC0-1.0 AND GPL-3.0-or-later
