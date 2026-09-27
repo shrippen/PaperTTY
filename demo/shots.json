@@ -1,0 +1,6 @@
+{
+  "kind": "command",
+  "start": "demo/shots.sh",
+  "format": "png",
+  "shots": [{"name": "terminal"}]
+}
