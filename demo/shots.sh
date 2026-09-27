@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Landing-page screenshot for shrippen.github.io/tools/screenshots.py (demo/shots.json).
+# Landing-page screenshot for shrippen.github.io/demo/tools/screenshots.py (demo/shots.json).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${SHOT_DIR:-${HERE}/../build/demo-shots}"
