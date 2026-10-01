@@ -1,15 +1,17 @@
 # Design Reference
 
-Visual design decisions for this project follow the shared **shrippen Design Default**:
+PaperTTY has no GUI of its own: it draws the terminal on an e-paper panel. The only designed
+surface is the landing page (`docs/`), and it is generated from **Kante**, the shared shrippen
+design system: <https://github.com/shrippen/Kante> (checkout `../Kante`).
 
-<https://github.com/shrippen/shrippen.github.io>
+- **Stylesheet**: the page links `https://shrippen.github.io/v1/shrippen.css` and `shrippen.js`
+  (Kante's build); template `templates/landing.html` in Kante.
+- **No own values**: colours, fonts, sizes, cuts and motion come from Kante's roles
+  (`--fg1`, `--primary`, `--link`, `--bg-hard` …). Inline SVG figures use the same variables,
+  never `#hex`.
+- **Missing elements** are added to Kante first, then used here.
+- **Badges**: shields.io with `labelColor=1c1c20`; value colours as in Kante's README.
+- **Dark only** for the landing page, as Kante prescribes for landing pages.
+- **Screenshots** come from the demo mode (`demo/shots.json`), never from real data.
 
-Key points applied here:
-
-- **Palette**: Gruvbox-inspired warm dark (bg `#282828`, text `#ebdbb2`, accent cream `#e8dcc4`, blue `#83a598`, aqua `#8ec07c`)
-- **Typography**: Rajdhani (headings), system sans (body), JetBrains Mono / Fira Code (code)
-- **Layout**: Landing page template from DesignDefault (icon → name → tagline → install box → CTA → features → footer)
-- **Badges**: shields.io with `labelColor=1c1c20`
-- **No light mode** for the landing page
-
-See the DesignDefault README for the full token table, CSS variables, and rationale.
+Full spec: Kante's `README.md` (tokens in `tokens/palette.json`).
