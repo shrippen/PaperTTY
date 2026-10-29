@@ -14,15 +14,11 @@
 
 - Add a small, to the point, comment to explain *what* the block does and *why*. Use examples when possible. Propose ASCII drawings to explain complete systems.
 
-- Treat member visibility changes as a breaking design shift. Keep all fields and functions private unless external access is strictly required by the design. Prompt the user for explicit approval before changing any access modifier from private to internal or public.
-
 - Program to levels of abstraction. Lower-level mechanics (e.g., raw hardware I/O, sector parsing, direct socket streams) must be encapsulated in a dedicated driver/abstraction layer. Expose clean, high-level APIs to the rest of the application so calling code works with domain concepts, not raw implementation details.
 
 - Don't touch blocks of code unrelated to the feature you implement. e.g. Don't add comments to a block of code if you did not create it or modify it. As much as possible try to minimize the number of changed lines when implementing a feature.
 
 - Strictly adhere to the layered boundary hierarchy: each layer may only communicate with its immediate neighbor directly below it. Never "punch holes" through layers (e.g., controllers or UI components must never directly call database queries, raw hardware drivers, or low-level network clients; always route through the intermediate service/abstraction layer).
-
-- Always use {}, even on a one-line "if" statement.
 
 When you write a commit message, follow these 7 rules:
 Rule 1: Separate the subject line from the body with a single blank line.
@@ -41,5 +37,6 @@ Rule 7: Use the body to explain what and why vs. how. Assume the code explains t
     and for performance problems and crashes too: stutter, late frames, a hang, a panic, a
     leak. The test stays in the suite; a one-off script run is not a test.
   - Name the failure in the commit or PR: the test and what it printed before the fix.
-
-- PR-Agent (where set up): If the review fails (an error, no result, e.g. a key or cost limit), ask for it once more with `/review`; if that fails too, green CI is enough to merge (owner, 11.10.2026).
+  - Display and timing bugs need the Pi with the panel. There the test is a script checked
+    into `tests/` that shows the failure on the hardware; it stays in the repo, and its output
+    goes in the commit or PR. What runs without the panel gets a normal unit test.
