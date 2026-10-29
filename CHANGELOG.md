@@ -3,14 +3,26 @@
 The release notes of this fork, newest first. Each section is the text of the release on Gitea and
 GitHub and of its entry in `#changes` on the landing page (`docs/index.html`).
 
-Release rule: before the tag, write the release log here (`## [X.Y.Z] — YYYY-MM-DD`, `### English`
-and `### Deutsch`, each with a lead, the groups New, Improved, Fixed and Note as `####`, and the
-compare link). Put the same text into the Gitea release notes and as the newest entry in `#changes`
-(from the fourth entry on, older ones go into `details.changelog-more`), and bump the footer version.
-A release is done when the landing page shows it.
-The notes come from `scripts/release-notes.sh X.Y.Z` (Gitea: `scripts/release-notes.sh X.Y.Z >
-notes.md`, then `tea`). The script is a copy of Kante's `tools/release-notes.sh`: change it only
-there, sync with `../Kante/tools/sync-release-notes.sh`.
+Release steps, in this order:
+1. Version `X.Y.Z` in `pyproject.toml` (branch `release/X.Y.Z`).
+2. Section here, before the tag: `## [X.Y.Z] — YYYY-MM-DD`, `### English` and `### Deutsch`, each with
+   a lead, the groups New, Improved, Fixed and Note as `####` (Neu, Verbessert, Behoben, Hinweis), and
+   the compare link. Check with `scripts/release-notes.sh --check`, read with `scripts/release-notes.sh X.Y.Z`.
+3. Landing page `docs/index.html`: the same text as the newest entry in `#changes` (from the fourth
+   entry on, older ones go into `details.changelog-more`), footer version; screenshots of visible
+   changes from the demo world, only now (`demo/shots.json`, `../shrippen.github.io/demo/tools/screenshots.py
+   papertty`, saved as `docs/shots/release-X.Y.Z-<name>-<lang>.png`).
+4. PR, reviewed by a new Claude agent (no PR-Agent here), the owner confirms the release; merge on Gitea.
+5. Tag the merge commit, push to Gitea only: `git tag -a vX.Y.Z -m X.Y.Z <commit> && git push origin vX.Y.Z`.
+6. Gitea release, notes only: `scripts/release-notes.sh X.Y.Z > notes.md && tea releases create --login
+   git.arianw.de --repo shrippen/papertty --tag vX.Y.Z --title "PaperTTY X.Y.Z" --note-file notes.md`.
+7. GitHub, by hand (no release workflow, no files: the installers run from `main`): `gh release create
+   vX.Y.Z -R shrippen/PaperTTY --title "PaperTTY X.Y.Z" --notes-file notes.md --verify-tag`.
+8. `python3 ../shrippen.github.io/overview/tools/build-versions.py`, commit `docs/versions.json` there via PR.
+9. Done when https://shrippen.github.io/PaperTTY/ and https://shrippen.github.io/versions.json show it.
+
+The script is a copy of Kante's `tools/release-notes.sh`: change it only there, sync with
+`../Kante/tools/sync-release-notes.sh "$PWD"`.
 
 ## [1.0.0] — 2026-09-10
 
