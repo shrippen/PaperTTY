@@ -1,21 +1,68 @@
 # Changelog
 
-- **2026-09-10 (1.0.0) - first release verified on real hardware (IT8951 1872x1404 on Pi Zero 2 W)**
-  - Fix `GPIO busy` on SPI chip-select pins: kernel CS claim vs manual CS toggling; point at `dtoverlay=spi0-0cs` (error message, installers, docs)
-  - IT8951 performance: real SPI speed via `--mhz` (12 MHz verified stable, 16 MHz not), numpy fast path for 1bpp packing (full frame pack 1.6 s -> 0.02 s), tighter BUSY/LUT poll sleeps; measured on 1872x1404: full A2 refresh 3.4 s -> 0.6 s, partial line update 1.5 s -> 0.03 s
-  - Add timeouts to IT8951 BUSY/LUT waits so a wedged controller crash-restarts the service
-  - Add `--no-rotate` as primary name for the `--portrait` flag (kept as alias); the flag renders text along the native panel axes, not 'portrait output'
-  - Document IT8951 orientation semantics: `--no-rotate` renders native (landscape) axes; note in installer prompt and wiki
-  - Keep papertty stdout unbuffered under sudo in generated start scripts so init logs reach journald immediately
-- **2026-08-10 (0.2.0 fork)**
-  - Retarget packaging for Python 3.11+ / current Raspberry Pi OS (Pillow 10+, click 8, setuptools)
-  - Prefer spidev for SPI and gpiozero/lgpio for GPIO; drop noisy gpiozero SPIDevice path
-  - Replace removed Pillow `ImageFont.getsize` usage
-  - Make vncdotool an optional extra (`papertty[vnc]`)
-  - Promote `--vcom` to the top-level CLI (needed for IT8951 `scrub`)
-  - Add papertty-init–compatible installers (`install/cli.sh`, `install/gui.sh`, `install/simple.sh`) with systemd or crontab boot, panel/GPIO prompts, Ubuntu fonts, and IT8951 VCOM handling
-  - Add extended Waveshare drivers (2.13 V3/V4, 1.54/2.7/2.9/4.2/5.83 V2, 2.66, 2.9d, 7.5 HD, 4.01f, …) and per-driver wiki pages under `wiki/`
-  - Mark extended drivers and the fork itself as experimental / vibe-coded; document personal-use intent
+The release notes of this fork, newest first. Each section is the text of the release on Gitea and
+GitHub and of its entry in `#changes` on the landing page (`docs/index.html`).
+
+Release rule: before the tag, write the release log here (`## [X.Y.Z] — YYYY-MM-DD`, `### English`
+and `### Deutsch`, each with a lead, the groups New, Improved, Fixed and Note as `####`, and the
+compare link). Put the same text into the Gitea release notes and as the newest entry in `#changes`
+(from the fourth entry on, older ones go into `details.changelog-more`), and bump the footer version.
+A release is done when the landing page shows it.
+
+## [1.0.0] — 2026-09-10
+
+### English
+
+The first release of this fork: PaperTTY runs on current Raspberry Pi OS, drives more Waveshare panels and is verified on real hardware, an IT8951 panel (1872×1404) on a Pi Zero 2 W.
+
+#### New
+- Installers in the style of papertty-init (`install/cli.sh`, `install/gui.sh`, `install/simple.sh`), also as curl one-liners: start at boot through systemd or crontab, prompts for panel and GPIO, Ubuntu fonts and VCOM for IT8951.
+- More Waveshare drivers (2.13 V3/V4, 1.54/2.7/2.9/4.2/5.83 V2, 2.66, 2.9d, 7.5 HD, 4.01f and others), each with a wiki page and marked experimental.
+- `--no-rotate` is the main name of `--portrait`, which stays as an alias: the flag draws text along the panel's native axes, it does not turn the output to portrait.
+
+#### Improved
+- Runs on Python 3.11+ and current Raspberry Pi OS (Pillow 10+, click 8). SPI goes through spidev, GPIO through gpiozero/lgpio. VNC is an optional extra (`papertty[vnc]`), and `--vcom` is a top-level option (IT8951 `scrub` needs it).
+- IT8951 is much faster: `--mhz` sets the real SPI speed (12 MHz stable, 16 MHz not) and 1bpp packing is quicker. On 1872×1404 a full A2 refresh takes 0.6 s instead of 3.4 s, a partial line update 0.03 s instead of 1.5 s.
+- Generated start scripts keep the output unbuffered under sudo, so start-up messages reach journald at once.
+
+#### Fixed
+- `GPIO busy` on the SPI chip-select pins: the kernel claimed them while PaperTTY switched them by hand. The error message, installers and docs now point to `dtoverlay=spi0-0cs`.
+- Text rendering with Pillow 10+: the removed `ImageFont.getsize` is replaced.
+- A stuck IT8951 controller no longer hangs the service: BUSY and LUT waits time out, and the service restarts.
+
+#### Note
+- The fork and its extended drivers are vibe-coded and built for personal use; verified on hardware is the IT8951 setup above.
+
+All changes: https://github.com/shrippen/PaperTTY/compare/c9bb44a...v1.0.0
+
+### Deutsch
+
+Die erste Version dieses Forks: PaperTTY läuft auf aktuellem Raspberry Pi OS, treibt mehr Waveshare-Panels an und ist auf echter Hardware geprüft, mit einem IT8951-Panel (1872×1404) an einem Pi Zero 2 W.
+
+#### Neu
+- Installer im Stil von papertty-init (`install/cli.sh`, `install/gui.sh`, `install/simple.sh`), auch als curl-Einzeiler: Start beim Booten über systemd oder crontab, Abfrage von Panel und GPIO, Ubuntu-Schriften und VCOM für IT8951.
+- Weitere Waveshare-Treiber (2.13 V3/V4, 1.54/2.7/2.9/4.2/5.83 V2, 2.66, 2.9d, 7.5 HD, 4.01f und andere), jeder mit einer Wiki-Seite und als experimentell markiert.
+- `--no-rotate` ist der Hauptname von `--portrait`, das als Alias bleibt: Der Schalter zeichnet Text entlang der nativen Achsen des Panels, er dreht die Ausgabe nicht ins Hochformat.
+
+#### Verbessert
+- Läuft mit Python 3.11+ und aktuellem Raspberry Pi OS (Pillow 10+, click 8). SPI geht über spidev, GPIO über gpiozero/lgpio. VNC ist ein optionales Extra (`papertty[vnc]`), und `--vcom` ist eine Option auf oberster Ebene (`scrub` bei IT8951 braucht sie).
+- IT8951 ist viel schneller: `--mhz` setzt die echte SPI-Geschwindigkeit (12 MHz stabil, 16 MHz nicht), und das Packen mit 1 bpp geht schneller. Bei 1872×1404 dauert ein voller A2-Refresh 0,6 s statt 3,4 s, das Teil-Update einer Zeile 0,03 s statt 1,5 s.
+- Erzeugte Startskripte geben unter sudo ungepuffert aus, Startmeldungen landen sofort im journald.
+
+#### Behoben
+- `GPIO busy` an den SPI-Chip-Select-Pins: Der Kernel belegte sie, während PaperTTY sie selbst schaltete. Fehlermeldung, Installer und Doku verweisen jetzt auf `dtoverlay=spi0-0cs`.
+- Textausgabe mit Pillow 10+: Das entfernte `ImageFont.getsize` ist ersetzt.
+- Ein hängender IT8951-Controller legt den Dienst nicht mehr still: Das Warten auf BUSY und LUT hat eine Zeitgrenze, und der Dienst startet neu.
+
+#### Hinweis
+- Fork und erweiterte Treiber sind vibe-coded und für den eigenen Gebrauch gebaut; auf Hardware geprüft ist das IT8951-Setup oben.
+
+Alle Änderungen: https://github.com/shrippen/PaperTTY/compare/c9bb44a...v1.0.0
+
+## Upstream history (joukos/PaperTTY, before the fork)
+
+The tags v0.01 to v0.04_prepypi are releases of the upstream project, not of this fork.
+
 - **2020-03-01**
   - Added partial refresh support for 4.2".
 - **2020-02-18**
