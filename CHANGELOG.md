@@ -8,6 +8,9 @@ and `### Deutsch`, each with a lead, the groups New, Improved, Fixed and Note as
 compare link). Put the same text into the Gitea release notes and as the newest entry in `#changes`
 (from the fourth entry on, older ones go into `details.changelog-more`), and bump the footer version.
 A release is done when the landing page shows it.
+The notes come from `scripts/release-notes.sh X.Y.Z` (Gitea: `scripts/release-notes.sh X.Y.Z >
+notes.md`, then `tea`). The script is a copy of Kante's `tools/release-notes.sh`: change it only
+there, sync with `../Kante/tools/sync-release-notes.sh`.
 
 ## [1.0.0] — 2026-09-10
 
