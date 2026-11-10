@@ -11,7 +11,8 @@ the owner's machine has the rules through the global `CLAUDE.md` already and rea
 - For bug fixes on hardware:
   - Display and timing bugs need the Pi with the panel. There the test is a script checked
     into `tests/` that shows the failure on the hardware; it stays in the repo, and its output
-    goes in the commit or PR. What runs without the panel gets a normal unit test.
+    goes in the commit or PR. What runs without the panel gets a normal unit test. The
+    repository has no tests yet: the first one creates `tests/`.
 
 ## Repository (this project)
 
