@@ -16,4 +16,5 @@ the owner's machine has the rules through the global `CLAUDE.md` already and rea
 
 ## Repository (this project)
 
+- No CI: before a PR run `pipx run tools/structure-check.py` (limits in `structure.baseline`). The merge waits for a clean run and the review.
 - Everything else: `RULES.md` (Repository) and the skill `pr-review`.
