@@ -53,14 +53,14 @@ structure is inherited.
   `drivers_base.py`. A driver knows nothing of terminals, fonts or commands.
 - Every driver takes the same settings at start; the template defines them once.
 - The text renderer is pure calculation: no hardware, no console, no waiting. It hands
-  back the image and the changed areas; the loop sends them to the driver. So it can be
-  tested without any driver.
+  back the image and the changed areas; the loop sends them to the driver. It gets the
+  display's size and abilities as values, so it can be tested without any driver.
 - What all drivers share is written once in a base, not per driver: turning an image
   into display bytes, waiting until the display is ready, reset.
 - A new driver builds on the newest base and is filed by its controller chip. An older
   driver moves there only when it is changed with its display at hand.
-- A setting is offered at one level, before the command or on one command, with one
-  check.
+- A setting is offered at one level, before the command or on the commands, never on
+  both, and is checked once. Options several commands share are defined once.
 - Start script and service exist once, in `papertty/resources/`; the installers use them
   and fill in values.
 - `demo/` uses the program from outside; the program does not know the demo.
@@ -89,7 +89,10 @@ structure is inherited.
 - The drivers stand in four families named after their history, each with its own base
   (`AUDIT.md`, finding 9). `drivers_extended.py` holds both chip families and their base
   in one file of 1617 lines (`AUDIT.md`, finding 10).
-- The text renderer sends its images to the driver itself (not in `AUDIT.md`).
+- The text renderer holds the driver: it reads size and abilities from it and sends
+  its images to it itself (not in `AUDIT.md`).
+- Options shared by commands are written out per command: font and size on `stdin` and
+  `terminal`, rotation on `image`, `vnc` and `fb` (not in `AUDIT.md`).
 - One driver (`EPD7in5v2`) imports the GPIO library directly instead of using the access
   in `drivers_base.py`, and fails where that library is not installed (not in
   `AUDIT.md`; a bug).
