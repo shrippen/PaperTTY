@@ -5,3 +5,4 @@
 # Structure check: for work on the code, not part of release archives.
 /tools export-ignore
 /structure.baseline export-ignore
+/AUDIT.md export-ignore
