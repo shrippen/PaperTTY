@@ -1,3 +1,7 @@
 # Not part of release archives (git archive): demo start and screenshot scripts.
 # The demo data the app itself needs lives elsewhere and stays in.
 /demo export-ignore
+
+# Structure check: for work on the code, not part of release archives.
+/tools export-ignore
+/structure.baseline export-ignore

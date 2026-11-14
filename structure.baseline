@@ -1,0 +1,14 @@
+# What is over a structure limit today (tools/structure-check.py). An entry may shrink,
+# never grow; a raised or new entry needs its reason in the PR. Rewrite with --update.
+# Lines: exclude<TAB>glob | path<TAB>function or - for the file<TAB>metric=value ...
+papertty/drivers/driver_it8951.py	draw	ccn=23 length=111
+papertty/drivers/driver_it8951.py	init	length=111
+papertty/drivers/driver_it8951.py	pack_1bpp	ccn=17
+papertty/drivers/drivers_color.py	get_frame_buffer	ccn=26
+papertty/drivers/drivers_extended.py	-	lines=1617
+papertty/papertty.py	-	lines=1557
+papertty/papertty.py	partialdraw_get_indexes_from_chunks	ccn=18
+papertty/papertty.py	partialdraw_get_lines_to_draw	length=127 nesting=5
+papertty/papertty.py	partialdraw_showtext	length=124
+papertty/papertty.py	showtext	ccn=20
+papertty/papertty.py	terminal	ccn=45 length=203 nesting=6
