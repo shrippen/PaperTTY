@@ -18,7 +18,7 @@ that damages the display or leaves the Pi without a screen:
   or row order, wrong size or colour mode for the panel.
 - **Crash at start:** a driver that does not take the common start settings, an import of
   a library that is missing on the Pi (`RPi.GPIO`, `vncdotool`, `numpy`), Python below 3.11.
-- **Stuck screen:** a busy-wait without timeout, an exit, Ctrl-C or the clear signal
+- **Stuck screen:** a busy-wait without timeout, an exit, Ctrl-C or the scrub signal
   (`SIGUSR1`) that leaves the display half drawn or not cleared, a console that keeps the
   size `terminal` set.
 - **Broken install:** an installer that writes a wrong service, driver name or option and
@@ -44,14 +44,9 @@ that damages the display or leaves the Pi without a screen:
   unit test (`agent.md`). Without that evidence, say so.
 - Calculation that needs no hardware (text drawing, changed areas) comes with a unit test.
 
-## What the owner confirms here
-
-- A release or tag and the landing page `docs/`, in addition to `RULES.md`. The installers
-  run from `main`: a change to `install/` goes live for every user at once.
-
 ## Skip
 
-- `papertty/resources/` fonts, `pics/`, `docs/shots/`, images.
+- `papertty/resources/` fonts, `pics/`, images.
 - `tools/structure-check.py` and `scripts/release-notes.sh` (synced copies).
 - Waveshare's lookup tables and register values, unless the PR changes them.
 
